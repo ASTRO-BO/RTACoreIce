@@ -14,7 +14,7 @@ SUBSCRIBER	= subscriber
 
 TARGETS		= $(PUBLISHER) $(SUBSCRIBER)
 
-OBJS		= Clock.o
+OBJS		= ByteStream.o
 
 POBJS		= Publisher.o
 
@@ -24,7 +24,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(POBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
-SLICE_SRCS	= Clock.ice
+SLICE_SRCS	= ByteStream.ice
 
 include $(top_srcdir)/config/Make.rules
 
