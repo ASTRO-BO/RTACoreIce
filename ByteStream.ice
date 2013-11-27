@@ -12,10 +12,11 @@
 module Demo
 {
 
-interface Clock
+sequence<byte> ByteSeq;
+
+interface ByteStream
 {
-    void tick(string time);
+    void send(int pixelNum, int pixelSize, ByteSeq seq);
 };
 
 };
-
