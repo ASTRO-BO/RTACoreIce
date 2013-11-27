@@ -10,8 +10,10 @@
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
+#include <cstdlib>
+#include <map>
 
-#include <Clock.h>
+#include <ByteStream.h>
 
 using namespace std;
 using namespace Demo;
@@ -33,7 +35,7 @@ main(int argc, char* argv[])
 void
 usage(const string& n)
 {
-    cerr << "Usage: " << n << " [--datagram|--twoway|--oneway] [topic]" << endl;
+    cerr << "Usage: " << n << " [--datagram|--twoway|--oneway]" << endl;
 }
 
 int
@@ -65,23 +67,12 @@ Publisher::run(int argc, char* argv[])
             usage(argv[0]);
             return EXIT_FAILURE;
         }
-        else
-        {
-            topicName = argv[i++];
-            break;
-        }
 
         if(oldoption != option && oldoption != None)
         {
             usage(argv[0]);
             return EXIT_FAILURE;
         }
-    }
-
-    if(i != argc)
-    {
-        usage(argv[0]);
-        return EXIT_FAILURE;
     }
 
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
@@ -93,59 +84,162 @@ Publisher::run(int argc, char* argv[])
     }
 
     //
-    // Retrieve the topic.
+    // Retrieve the streams for the topics.
     //
-    IceStorm::TopicPrx topic;
-    try
-    {
-        topic = manager->retrieve(topicName);
-    }
-    catch(const IceStorm::NoSuchTopic&)
-    {
-        try
-        {
-            topic = manager->create(topicName);
-        }
-        catch(const IceStorm::TopicExists&)
-        {
-            cerr << appName() << ": temporary failure. try again." << endl;
-            return EXIT_FAILURE;
-        }
-    }
+	const int TOPICNUM = 3;
+	const std::string topicNames[TOPICNUM] = { "LargeTelescope", "MediumTelescope", "SmallTelescope" };
+	std::vector<IceStorm::ByteStreamPrx> streams;
 
-    //
-    // Get the topic's publisher object, and create a Clock proxy with
-    // the mode specified as an argument of this application.
-    //
-    Ice::ObjectPrx publisher = topic->getPublisher();
-    if(option == Datagram)
-    {
-        publisher = publisher->ice_datagram();
-    }
-    else if(option == Twoway)
-    {
-        // Do nothing.
-    }
-    else if(option == Oneway || option == None)
-    {
-        publisher = publisher->ice_oneway();
-    }
+	for(int i=0; i<TOPICNUM; i++)
+	{
+	    IceStorm::TopicPrx topic;
+		try
+		{
+			topic = manager->retrieve(topicNames[i]);
+		}
+		catch(const IceStorm::NoSuchTopic&)
+		{
+			try
+			{
+				topic = manager->create(topicNames[i]);
+			}
+			catch(const IceStorm::TopicExists&)
+			{
+				cerr << appName() << ": temporary failure. try again." << endl;
+				return EXIT_FAILURE;
+			}
+		}
+
+	    //
+	    // Get the topic's publisher object, and create a Clock proxy with
+	    // the mode specified as an argument of this application.
+	    //
+	    Ice::ObjectPrx publisher = topic->getPublisher();
+	    if(option == Datagram)
+	    {
+	        publisher = publisher->ice_datagram();
+	    }
+		else if(option == Twoway)
+		{
+			// Do nothing.
+		}
+		else if(option == Oneway || option == None)
+		{
+			publisher = publisher->ice_oneway();
+		}
     
-    ClockPrx clock = ClockPrx::uncheckedCast(publisher);
+	    ByteStreamPrx prx = ByteStreamPrx::uncheckedCast(publisher);
+		streams.push_back(prx);
+	}
 
-    cout << "publishing tick events. Press ^C to terminate the application." << endl;
-    try
-    {
-        while(true)
-        {
-            clock->tick(IceUtil::Time::now().toDateTime());
-            IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
-        }
-    }
-    catch(const Ice::CommunicatorDestroyedException&)
-    {
-        // Ignore
-    }
+	std::string ctarta = getenv("CTARTA");
+	RTATelem::CTACameraTriggerData *trtel;
+	trtel = new CTACameraTriggerData(ctarta + "/share/rtatelem/rta_fadc.stream", ctarta + "/data/out_fadc.raw", "");
+
+	const int LARGE = 0;
+	const int MEDIUM = 1;
+	const int SMALL = 2;
+	std::map<int, int> mapTelescopes; // map telescope id to types (hardcoded)
+	mapTelescopes[1]=LARGE;
+	mapTelescopes[2]=LARGE;
+	mapTelescopes[4]=LARGE;
+	mapTelescopes[5]=LARGE;
+	mapTelescopes[6]=MEDIUM;
+	mapTelescopes[8]=MEDIUM;
+	mapTelescopes[10]=MEDIUM;
+	mapTelescopes[12]=MEDIUM;
+	mapTelescopes[14]=MEDIUM;
+	mapTelescopes[15]=MEDIUM;
+	mapTelescopes[16]=MEDIUM;
+	mapTelescopes[17]=MEDIUM;
+	mapTelescopes[18]=MEDIUM;
+	mapTelescopes[19]=MEDIUM;
+	mapTelescopes[20]=MEDIUM;
+	mapTelescopes[22]=MEDIUM;
+	mapTelescopes[29]=MEDIUM;
+	mapTelescopes[30]=MEDIUM;
+	mapTelescopes[31]=MEDIUM;
+	mapTelescopes[32]=MEDIUM;
+	mapTelescopes[40]=MEDIUM;
+	mapTelescopes[41]=MEDIUM;
+	mapTelescopes[42]=MEDIUM;
+	mapTelescopes[49]=MEDIUM;
+	mapTelescopes[50]=MEDIUM;
+	mapTelescopes[51]=MEDIUM;
+	mapTelescopes[52]=MEDIUM;
+	mapTelescopes[60]=SMALL;
+	mapTelescopes[62]=SMALL;
+	mapTelescopes[63]=SMALL;
+	mapTelescopes[64]=SMALL;
+	mapTelescopes[66]=SMALL;
+	mapTelescopes[67]=SMALL;
+	mapTelescopes[68]=SMALL;
+	mapTelescopes[69]=SMALL;
+	mapTelescopes[70]=SMALL;
+	mapTelescopes[71]=SMALL;
+	mapTelescopes[72]=SMALL;
+	mapTelescopes[73]=SMALL;
+	mapTelescopes[74]=SMALL;
+	mapTelescopes[75]=SMALL;
+	mapTelescopes[76]=SMALL;
+	mapTelescopes[77]=SMALL;
+	mapTelescopes[78]=SMALL;
+	mapTelescopes[79]=SMALL;
+	mapTelescopes[80]=SMALL;
+	mapTelescopes[81]=SMALL;
+	mapTelescopes[82]=SMALL;
+	mapTelescopes[83]=SMALL;
+	mapTelescopes[84]=SMALL;
+	mapTelescopes[85]=SMALL;
+	mapTelescopes[86]=SMALL;
+	mapTelescopes[87]=SMALL;
+	mapTelescopes[88]=SMALL;
+	mapTelescopes[89]=SMALL;
+	mapTelescopes[90]=SMALL;
+	mapTelescopes[91]=SMALL;
+	mapTelescopes[92]=SMALL;
+	mapTelescopes[93]=SMALL;
+	mapTelescopes[94]=SMALL;
+	mapTelescopes[95]=SMALL;
+	mapTelescopes[96]=SMALL;
+
+	byte* rawStream = trtel.readPacket();
+	while(rawStream)
+	{
+
+		int id = trtel->getTelescopeId();
+		std::cout << "% - Triggered Telescope ID = " << id << std::endl;
+		int type = mapTelescopes[id];
+		if(type == LARGE)
+			std::cout << "% - A Large Telescope triggered - Process A activating" << std::endl;
+		else if(type == MEDIUM)
+			std::cout << "% - A Medium Telescope triggered - Process B activating" << std::endl;
+		else if(type == SMALL)
+			std::cout << "% - A Small Telescope triggered - Process C activating" << std::endl;
+
+		// Get current number of pixels
+		word npixels = trtel->getNumberOfPixels();
+
+		// Get FIXED per-telescope number of samples.
+		// This could be extended to be dynamic sending an additional vector of sample sizes.
+		word nsamples = trtel->getNumberOfSamples(1);
+
+		std::cout << "% - Sending data..." << std::endl;
+		std::cout << "Pixel Num: " << npixels << std::endl;
+		std::cout << "Sample Num: " << nsamples << std::endl;
+//		std::cout << "Raw Stream Size: " << rawStream << std::endl; FIXME
+
+		try
+		{
+			streams[type].send(npixels, nsamples, rawStream);
+		}
+		catch(const Ice::CommunicatorDestroyedException&)
+		{
+			// Ignore
+		}
+
+		rawStream = trtel->readPacket();
+	}
 
     return EXIT_SUCCESS;
 }
