@@ -9,27 +9,27 @@
 
 top_srcdir	= .
 
-PUBLISHER	= publisher
-SUBSCRIBER	= subscriber
+PUBLISHER	= RTAReceiver_Ice
+SUBSCRIBER	= RTAWaveServer
 
 TARGETS		= $(PUBLISHER) $(SUBSCRIBER)
 
-OBJS		= ByteStream.o
+OBJS		= RTAWave.o
 
-POBJS		= Publisher.o
+POBJS		= RTAReceiver_Ice.o
 
-SOBJS		= Subscriber.o
+SOBJS		= RTAWaveServer.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(POBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
-SLICE_SRCS	= ByteStream.ice
+SLICE_SRCS	= RTAWave.ice
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
-LIBS		:= -lIceStorm $(LIBS)
+LIBS		:= -lIceStorm $(LIBS) -lRTAtelem -lpacket
 
 $(PUBLISHER): $(OBJS) $(POBJS)
 	rm -f $@

@@ -1,11 +1,15 @@
-// **********************************************************************
-//
-// Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
-//
-// **********************************************************************
+/***************************************************************************
+ * begin                : Nov 27 2013
+ * copyright            : (C) 2013 Andrea Zoli
+ * email                : zoli@iasfbo.inaf.it
+ * *************************************************************************
+ *
+ * Copyright (c) 2003-2013 ZeroC, Inc. All rights reserved.
+ *
+ * This copy of Ice is licensed to you under the terms described in the
+ * ICE_LICENSE file included in this distribution.
+ *
+ ***************************************************************************/
 
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
@@ -13,12 +17,14 @@
 #include <cstdlib>
 #include <map>
 
-#include <ByteStream.h>
+#include <CTACameraTriggerData.h>
+
+#include <RTAWave.h>
 
 using namespace std;
-using namespace Demo;
+using namespace CTA;
 
-class Publisher : public Ice::Application
+class RTAReceiver_Ice : public Ice::Application
 {
 public:
 
@@ -28,7 +34,7 @@ public:
 int
 main(int argc, char* argv[])
 {
-    Publisher app;
+    RTAReceiver_Ice app;
     return app.main(argc, argv, "config.pub");
 }
 
@@ -39,7 +45,7 @@ usage(const string& n)
 }
 
 int
-Publisher::run(int argc, char* argv[])
+RTAReceiver_Ice::run(int argc, char* argv[])
 {
     enum Option { None, Datagram, Twoway, Oneway };
     Option option = None;
@@ -88,7 +94,7 @@ Publisher::run(int argc, char* argv[])
     //
 	const int TOPICNUM = 3;
 	const std::string topicNames[TOPICNUM] = { "LargeTelescope", "MediumTelescope", "SmallTelescope" };
-	std::vector<IceStorm::ByteStreamPrx> streams;
+	std::vector<RTAWavePrx> streams;
 
 	for(int i=0; i<TOPICNUM; i++)
 	{
@@ -111,13 +117,13 @@ Publisher::run(int argc, char* argv[])
 		}
 
 	    //
-	    // Get the topic's publisher object, and create a Clock proxy with
+	    // Get the topic's receiver object, and create a RTAWave proxy with
 	    // the mode specified as an argument of this application.
 	    //
-	    Ice::ObjectPrx publisher = topic->getPublisher();
+	    Ice::ObjectPrx receiver = topic->getPublisher();
 	    if(option == Datagram)
 	    {
-	        publisher = publisher->ice_datagram();
+	        receiver = receiver->ice_datagram();
 	    }
 		else if(option == Twoway)
 		{
@@ -125,16 +131,16 @@ Publisher::run(int argc, char* argv[])
 		}
 		else if(option == Oneway || option == None)
 		{
-			publisher = publisher->ice_oneway();
+			receiver = receiver->ice_oneway();
 		}
     
-	    ByteStreamPrx prx = ByteStreamPrx::uncheckedCast(publisher);
+	    RTAWavePrx prx = RTAWavePrx::uncheckedCast(receiver);
 		streams.push_back(prx);
 	}
 
 	std::string ctarta = getenv("CTARTA");
 	RTATelem::CTACameraTriggerData *trtel;
-	trtel = new CTACameraTriggerData(ctarta + "/share/rtatelem/rta_fadc.stream", ctarta + "/data/out_fadc.raw", "");
+	trtel = new RTATelem::CTACameraTriggerData(ctarta + "/share/rtatelem/rta_fadc.stream", ctarta + "/data/out_fadc.raw", "");
 
 	const int LARGE = 0;
 	const int MEDIUM = 1;
@@ -203,7 +209,7 @@ Publisher::run(int argc, char* argv[])
 	mapTelescopes[95]=SMALL;
 	mapTelescopes[96]=SMALL;
 
-	byte* rawStream = trtel.readPacket();
+	byte* rawStream = trtel->readPacket()->getStream();
 	while(rawStream)
 	{
 
@@ -231,14 +237,16 @@ Publisher::run(int argc, char* argv[])
 
 		try
 		{
-			streams[type].send(npixels, nsamples, rawStream);
+			ByteSeq seq;
+			// TODO copy seq = rawStream;
+			streams[type]->send(npixels, nsamples, seq);
 		}
 		catch(const Ice::CommunicatorDestroyedException&)
 		{
 			// Ignore
 		}
 
-		rawStream = trtel->readPacket();
+		rawStream = trtel->readPacket()->getStream();
 	}
 
     return EXIT_SUCCESS;

@@ -9,12 +9,12 @@
 
 #pragma once
 
-module Demo
+module CTA
 {
 
 sequence<byte> ByteSeq;
 
-interface ByteStream
+interface RTAWave
 {
     void send(int pixelNum, int pixelSize, ByteSeq seq);
 };

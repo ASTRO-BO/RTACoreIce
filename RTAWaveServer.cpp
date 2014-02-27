@@ -11,23 +11,22 @@
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 
-#include <Clock.h>
+#include <RTAWave.h>
 
 using namespace std;
-using namespace Demo;
+using namespace CTA;
 
-class ClockI : public Clock
+class RTAWaveI : public RTAWave
 {
 public:
 
-    virtual void
-    tick(const string& time, const Ice::Current&)
+    virtual void send(Ice::Int pixelNum, Ice::Int pixelSize, const CTA::ByteSeq& seq, const Ice::Current& curr)
     {
-        cout << time << endl;
+        cout << pixelNum << endl;
     }
 };
 
-class Subscriber : public Ice::Application
+class RTAWaveServer : public Ice::Application
 {
 public:
 
@@ -37,7 +36,7 @@ public:
 int
 main(int argc, char* argv[])
 {
-    Subscriber app;
+    RTAWaveServer app;
     return app.main(argc, argv, "config.sub");
 }
 
@@ -49,10 +48,10 @@ usage(const string& n)
 }
 
 int
-Subscriber::run(int argc, char* argv[])
+RTAWaveServer::run(int argc, char* argv[])
 {
     Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
-    args = communicator()->getProperties()->parseCommandLineOptions("Clock", args);
+    args = communicator()->getProperties()->parseCommandLineOptions("RTAWaveServer", args);
     Ice::stringSeqToArgs(args, argc, argv);
 
     bool batch = false;
@@ -176,7 +175,7 @@ Subscriber::run(int argc, char* argv[])
         }
     }
 
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Clock.Subscriber");
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("RTAWaveServer.Subscriber");
 
     //
     // Add a servant for the Ice object. If --id is used the identity
@@ -191,7 +190,7 @@ Subscriber::run(int argc, char* argv[])
     {
         subId.name = IceUtil::generateUUID();
     }
-    Ice::ObjectPrx subscriber = adapter->add(new ClockI, subId);
+    Ice::ObjectPrx wave = adapter->add(new RTAWaveI, subId);
 
     //
     // Activate the object adapter before subscribing.
@@ -211,52 +210,52 @@ Subscriber::run(int argc, char* argv[])
     {
         if(batch)
         {
-            subscriber = subscriber->ice_batchDatagram();
+            wave = wave->ice_batchDatagram();
         }
         else
         {
-            subscriber = subscriber->ice_datagram();
+            wave = wave->ice_datagram();
         }
     }
     else if(option == Twoway)
     {
-        // Do nothing to the subscriber proxy. Its already twoway.
+        // Do nothing to the wave proxy. Its already twoway.
     }
     else if(option == Ordered)
     {
-        // Do nothing to the subscriber proxy. Its already twoway.
+        // Do nothing to the wave proxy. Its already twoway.
         qos["reliability"] = "ordered";
     }
     else if(option == Oneway || option == None)
     {
         if(batch)
         {
-            subscriber = subscriber->ice_batchOneway();
+            wave = wave->ice_batchOneway();
         }
         else
         {
-            subscriber = subscriber->ice_oneway();
+            wave = wave->ice_oneway();
         }
     }
 
     try
     {
-        topic->subscribeAndGetPublisher(qos, subscriber);
+        topic->subscribeAndGetPublisher(qos, wave);
     }
     catch(const IceStorm::AlreadySubscribed&)
     {
-        // If we're manually setting the subscriber id ignore.
+        // If we're manually setting the wave id ignore.
         if(id.empty())
         {
             throw;
         }
-        cout << "reactivating persistent subscriber" << endl;
+        cout << "reactivating persistent wave" << endl;
     }
 
     shutdownOnInterrupt();
     communicator()->waitForShutdown();
 
-    topic->unsubscribe(subscriber);
+    topic->unsubscribe(wave);
 
     return EXIT_SUCCESS;
 }
