@@ -17,14 +17,24 @@
 #define _RTARECEIVER_I_H
 
 #include "RTAReceiver.h"
+#include "RTAWave.h"
+#include <CTACameraTriggerData0.h>
+#include <vector>
 
 class RTAReceiverI : public CTA::RTAReceiver
 {
 public:
 
-	RTAReceiverI(){}
+	RTAReceiverI(RTATelem::CTACameraTriggerData0& trtel, std::vector<CTA::RTAWavePrx>& streams) : _trtel(trtel), _streams(streams)
+	{
+	}
 
 	virtual void send(const CTA::ByteSeq& seq, const Ice::Current& curr);
+
+private:
+
+	RTATelem::CTACameraTriggerData0 _trtel;
+	std::vector<CTA::RTAWavePrx> _streams;
 };
 
 #endif

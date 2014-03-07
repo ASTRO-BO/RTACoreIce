@@ -15,11 +15,30 @@
 
 #include "RTAReceiverI.h"
 #include <iostream>
+#include <packet/ByteStream.h>
 
 using namespace CTA;
 
+using PacketLib::ByteStream;
+using PacketLib::ByteStreamPtr;
+using PacketLib::byte;
+
 void RTAReceiverI::send(const ByteSeq& seq, const Ice::Current& curr)
 {
-	std::cout << "Routing a new sequence" << std::endl;
-	std::cout << "Size: " << seq.size() << std::endl;
+	const int LARGE = 0;
+	const int MEDIUM = 1;
+	const int SMALL = 2;
+
+	ByteStreamPtr streamPtr = ByteStreamPtr(new ByteStream((byte*)&seq[0], seq.size(), false));
+	_trtel.setStream(streamPtr);
+
+	int type = LARGE; // TODO fix this using the right type decoded from trtel
+	if(type == LARGE)
+		std::cout << "% - A Large Telescope triggered - Process A activating" << std::endl;
+	else if(type == MEDIUM)
+		std::cout << "% - A Medium Telescope triggered - Process B activating" << std::endl;
+	else if(type == SMALL)
+		std::cout << "% - A Small Telescope triggered - Process C activating" << std::endl;
+
+	_streams[type]->send(0, 0, seq);
 }
