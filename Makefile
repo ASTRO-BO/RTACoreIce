@@ -14,9 +14,9 @@ SUBSCRIBER	= RTAWaveServer
 
 TARGETS		= $(PUBLISHER) $(SUBSCRIBER)
 
-OBJS		= RTAWave.o
+OBJS		= RTAWave.o RTAReceiver.o
 
-POBJS		= RTAReceiver_Ice.o
+POBJS		= RTAReceiverI.o RTAReceiver_Ice.o
 
 SOBJS		= RTAWaveServer.o
 
@@ -24,7 +24,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(POBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
-SLICE_SRCS	= RTAWave.ice
+SLICE_SRCS	= RTAWave.ice RTAReceiver.ice
 
 include $(top_srcdir)/config/Make.rules
 

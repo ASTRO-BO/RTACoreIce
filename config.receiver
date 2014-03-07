@@ -20,3 +20,20 @@ TopicManager.Proxy=CTAIceStorm/TopicManager:default -h localhost -p 12000
 Ice.Admin.InstanceName=publisher
 IceMX.Metrics.Debug.GroupBy=id
 IceMX.Metrics.ByParent.GroupBy=parent
+
+### SERVER
+Ice.MessageSizeMax=1000000000
+
+#
+# The server creates one single object adapter with the name
+# "RTAReceiver". The following line sets the endpoints for this
+# adapter.
+#
+RTAReceiver.Endpoints=default -p 10000 -h localhost
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
+
+Ice.ThreadPool.Server.Size=1

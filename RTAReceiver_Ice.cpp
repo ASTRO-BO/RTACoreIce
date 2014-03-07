@@ -21,7 +21,7 @@
 
 #include <CTACameraTriggerData.h>
 
-#include <RTAWave.h>
+#include <RTAReceiverI.h>
 
 using namespace std;
 using namespace CTA;
@@ -37,7 +37,7 @@ int
 main(int argc, char* argv[])
 {
     RTAReceiver_Ice app;
-    return app.main(argc, argv, "config.pub");
+    return app.main(argc, argv, "config.receiver");
 }
 
 void
@@ -49,7 +49,16 @@ usage(const string& n)
 int
 RTAReceiver_Ice::run(int argc, char* argv[])
 {
-    enum Option { None, Datagram, Twoway, Oneway };
+
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("RTAReceiver");
+    RTAReceiverPtr servant = new RTAReceiverI;
+    adapter->add(servant, communicator()->stringToIdentity("receiver"));
+    adapter->activate();
+
+    communicator()->waitForShutdown();
+
+   // TODO MOVE THE FOLLOWING TO THE SERVANT
+/*    enum Option { None, Datagram, Twoway, Oneway };
     Option option = None;
     string topicName = "time";
     int i;
@@ -138,9 +147,9 @@ RTAReceiver_Ice::run(int argc, char* argv[])
     
 	    RTAWavePrx prx = RTAWavePrx::uncheckedCast(receiver);
 		streams.push_back(prx);
-	}
+	}*/
 
-	std::string ctarta = getenv("CTARTA");
+/*	std::string ctarta = getenv("CTARTA");
 	RTATelem::CTACameraTriggerData *trtel;
 	trtel = new RTATelem::CTACameraTriggerData(ctarta + "/share/rtatelem/rta_fadc.stream", ctarta + "/data/out_fadc.raw", "");
 
@@ -248,8 +257,20 @@ RTAReceiver_Ice::run(int argc, char* argv[])
 			// Ignore
 		}
 
-		rawStream = trtel->readPacket()->getStream();
-	}
+		rawStream = trtel->readPacket()->getStream();*/
+
+/*	ByteSeq seq;
+	for(unsigned int i=0; i<10000; i++)
+		seq.push_back(0);
+
+	for(unsigned int npacket=0; npacket<1000; npacket++)
+	{
+		for(unsigned int i=0; i<10000; i++)
+			seq[i]++;
+
+		// TODO fix type
+		streams[0]->send(100, 100, seq);
+	}*/
 
     return EXIT_SUCCESS;
 }
