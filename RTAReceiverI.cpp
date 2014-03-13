@@ -16,12 +16,10 @@
 #include "RTAReceiverI.h"
 #include <iostream>
 #include <packet/ByteStream.h>
+#include <CTACameraTriggerData1.h>
 
 using namespace CTA;
-
-using PacketLib::ByteStream;
-using PacketLib::ByteStreamPtr;
-using PacketLib::byte;
+using namespace PacketLib;
 
 void RTAReceiverI::send(const ByteSeq& seq, const Ice::Current& curr)
 {
@@ -30,15 +28,30 @@ void RTAReceiverI::send(const ByteSeq& seq, const Ice::Current& curr)
 	const int SMALL = 2;
 
 	ByteStreamPtr streamPtr = ByteStreamPtr(new ByteStream((byte*)&seq[0], seq.size(), false));
-	_trtel.setStream(streamPtr);
 
-	int type = LARGE; // TODO fix this using the right type decoded from trtel
-	if(type == LARGE)
+	RTATelem::CTAPacket& packet = _decoder.getPacket(streamPtr);
+	enum RTATelem::CTAPacketType type = packet.getPacketType();
+
+	// skipping packets of camera type different from triggerdata1
+	if(type != RTATelem::CTA_CAMERA_TRIGGERDATA_1)
+	{
+		std::cout << "Warning: Skipping packet from a camera of type " << type << std::endl;
+		return;
+	}
+
+	RTATelem::CTACameraTriggerData1& trtel = (RTATelem::CTACameraTriggerData1&) packet;
+
+	int npixels = trtel.getNumberOfPixels();
+	int nsamples = trtel.getNumberOfSamples(0);
+
+	int teltype = LARGE; // TODO settare il type in base al numero di pixel/samples
+
+	if(teltype == LARGE)
 		std::cout << "% - A Large Telescope triggered - Process A activating" << std::endl;
-	else if(type == MEDIUM)
+	else if(teltype == MEDIUM)
 		std::cout << "% - A Medium Telescope triggered - Process B activating" << std::endl;
-	else if(type == SMALL)
+	else if(teltype == SMALL)
 		std::cout << "% - A Small Telescope triggered - Process C activating" << std::endl;
 
-	_streams[type]->send(0, 0, seq);
+	_streams[teltype]->send(npixels, nsamples, seq);
 }

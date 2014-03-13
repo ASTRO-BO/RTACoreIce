@@ -16,7 +16,8 @@
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
-#include <CTACameraTriggerData.h>
+#include <CTAStream.h>
+#include <CTACameraTriggerData0.h>
 #include "RTAReceiverI.h"
 
 using namespace std;
@@ -37,10 +38,10 @@ int main(int argc, char* argv[])
 
 int RTAReceiver_Ice::run(int argc, char* argv[])
 {
-	if(argc != 3)
+	if(argc != 2)
 	{
 		std::cerr << "Error: wrong number of arguments. Usage:" << std::endl;
-		std::cerr << "./RTAReceiver_Ice file.stream file.raw" << std::endl;
+		std::cerr << "./RTAReceiver_Ice file.raw" << std::endl;
 		return EXIT_FAILURE;
 	}
 
@@ -82,12 +83,12 @@ int RTAReceiver_Ice::run(int argc, char* argv[])
 		streams.push_back(prx);
 	}
 
-	// Use the CTACameraTriggerData0 class for decoding telescope types
-	RTATelem::CTACameraTriggerData0 trtel(argv[1], argv[2], "");
+	// Use a CTADecoder
+	RTATelem::CTADecoder decoder(argv[1]);
 
 	// Create an adapter for RTAReceiver
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("RTAReceiver");
-    RTAReceiverPtr servant = new RTAReceiverI(trtel, streams);
+    RTAReceiverPtr servant = new RTAReceiverI(decoder, streams);
     adapter->add(servant, communicator()->stringToIdentity("receiver"));
     adapter->activate();
 

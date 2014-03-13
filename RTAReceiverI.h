@@ -18,14 +18,14 @@
 
 #include "RTAReceiver.h"
 #include "RTAWave.h"
-#include <CTACameraTriggerData0.h>
+#include <CTADecoder.h>
 #include <vector>
 
 class RTAReceiverI : public CTA::RTAReceiver
 {
 public:
 
-	RTAReceiverI(RTATelem::CTACameraTriggerData0& trtel, std::vector<CTA::RTAWavePrx>& streams) : _trtel(trtel), _streams(streams)
+	RTAReceiverI(RTATelem::CTADecoder& decoder, std::vector<CTA::RTAWavePrx>& streams) : _decoder(decoder), _streams(streams)
 	{
 	}
 
@@ -33,7 +33,7 @@ public:
 
 private:
 
-	RTATelem::CTACameraTriggerData0 _trtel;
+	RTATelem::CTADecoder _decoder;
 	std::vector<CTA::RTAWavePrx> _streams;
 };
 
