@@ -181,7 +181,7 @@ RTAWaveServer::run(int argc, char* argv[])
         }
     }
 
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("RTAWaveServer.Subscriber");
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("RTAWave.Subscriber");
 
     //
     // Add a servant for the Ice object. If --id is used the identity

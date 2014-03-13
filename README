@@ -14,4 +14,6 @@ Run the Publisher in a separate window:
 
 In other windows run the subscribers:
 
-  $ RTAWave
+  $ RTAWaveServer SmallTelescope
+  $ RTAWaveServer MediumTelescope
+  $ RTAWaveServer LargeTelescope

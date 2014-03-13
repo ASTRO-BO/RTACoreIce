@@ -3,7 +3,7 @@
 # subscriber adapter. These endpoints are where the client receives
 # topic messages from IceStorm.
 #
-Clock.Subscriber.Endpoints=tcp:udp
+RTAWave.Subscriber.Endpoints=tcp:udp
 
 #
 # This property is used by the clients to connect to IceStorm.
