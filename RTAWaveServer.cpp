@@ -26,7 +26,7 @@ class RTAWaveI : public RTAWave
 {
 public:
 
-    virtual void send(Ice::Int pixelNum, Ice::Int pixelSize, const CTA::ByteSeq& seq, const Ice::Current& curr)
+    virtual void send(Ice::Int pixelNum, Ice::Int pixelSize, const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur)
     {
         cout << pixelNum << endl;
     }

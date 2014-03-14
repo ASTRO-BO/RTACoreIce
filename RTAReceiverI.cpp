@@ -21,15 +21,15 @@
 using namespace CTA;
 using namespace PacketLib;
 
-void RTAReceiverI::send(const ByteSeq& seq, const Ice::Current& curr)
+void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur)
 {
 	const int LARGE = 0;
-	const int MEDIUM = 1;
-	const int SMALL = 2;
+/*	const int MEDIUM = 1;
+	const int SMALL = 2;*/
 
-	ByteStreamPtr streamPtr = ByteStreamPtr(new ByteStream((byte*)&seq[0], seq.size(), false));
+	ByteStreamPtr streamPtr = ByteStreamPtr(new ByteStream((byte*)seqPtr.first, seqPtr.second-seqPtr.first, false));
 
-	RTATelem::CTAPacket& packet = _decoder.getPacket(streamPtr);
+/*	RTATelem::CTAPacket& packet = _decoder.getPacket(streamPtr);
 	enum RTATelem::CTAPacketType type = packet.getPacketType();
 
 	// skipping packets of camera type different from triggerdata1
@@ -51,7 +51,8 @@ void RTAReceiverI::send(const ByteSeq& seq, const Ice::Current& curr)
 	else if(teltype == MEDIUM)
 		std::cout << "% - A Medium Telescope triggered - Process B activating" << std::endl;
 	else if(teltype == SMALL)
-		std::cout << "% - A Small Telescope triggered - Process C activating" << std::endl;
+		std::cout << "% - A Small Telescope triggered - Process C activating" << std::endl;*/
 
-	_streams[teltype]->send(npixels, nsamples, seq);
+	int teltype = LARGE;
+	 _streams[teltype]->send(0, 0, seqPtr);
 }

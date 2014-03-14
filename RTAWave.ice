@@ -22,7 +22,7 @@ sequence<byte> ByteSeq;
 
 interface RTAWave
 {
-    void send(int pixelNum, int pixelSize, ByteSeq seq);
+    void send(int pixelNum, int pixelSize, ["cpp:array"] ByteSeq seq);
 };
 
 };
