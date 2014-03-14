@@ -4,8 +4,9 @@ To build use:
 
   $ make
 
-To run you need to start the Ice Storm service:
+To run you need to start the Ice Storm service (be sure you have a db directory):
 
+  $ mkdir -p db
   $ icebox --Ice.Config=config.icebox
 
 Run the Publisher in a separate window:
