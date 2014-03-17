@@ -19,6 +19,7 @@
 #include <CTAStream.h>
 #include <CTACameraTriggerData0.h>
 #include "RTAReceiverI.h"
+#include "RTAMonitorThread.h"
 
 using namespace std;
 using namespace CTA;
@@ -83,12 +84,28 @@ int RTAReceiver_Ice::run(int argc, char* argv[])
 		streams.push_back(prx);
 	}
 
+    // get a RTAMonitor proxy
+    CTA::RTAMonitorPrx monitor = 0;
+    try
+    {
+         monitor = CTA::RTAMonitorPrx::checkedCast(communicator()->propertyToProxy("RTAMonitor.Proxy"))->ice_oneway();
+    }
+    catch(...)
+    {
+    }
+
+    // start the MonitorThread
+    size_t byteSent = 0;
+    IceUtil::Mutex mutex;
+    RTAMonitorThread monitorThread(monitor, byteSent, mutex);
+    monitorThread.start();
+
 	// Use a CTADecoder
 	RTATelem::CTADecoder decoder(argv[1]);
 
 	// Create an adapter for RTAReceiver
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("RTAReceiver");
-    RTAReceiverPtr servant = new RTAReceiverI(decoder, streams);
+    RTAReceiverPtr servant = new RTAReceiverI(decoder, streams, byteSent, mutex);
     adapter->add(servant, communicator()->stringToIdentity("receiver"));
     adapter->activate();
 

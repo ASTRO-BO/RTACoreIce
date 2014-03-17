@@ -55,4 +55,8 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 
 	int teltype = LARGE;
 	 _streams[teltype]->send(0, 0, seqPtr);
+
+	_mutex.lock();
+	_byteSent += streamPtr->size();
+	_mutex.unlock();
 }
