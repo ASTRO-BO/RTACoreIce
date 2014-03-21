@@ -18,6 +18,7 @@
 
 #include "RTAReceiver.h"
 #include "RTAMonitor.h"
+#include "RTAViewer.h"
 #include "RTAWave.h"
 #include <CTADecoder.h>
 #include <vector>
@@ -27,8 +28,8 @@ class RTAReceiverI : public CTA::RTAReceiver
 {
 public:
 
-	RTAReceiverI(RTATelem::CTADecoder& decoder, std::vector<CTA::RTAWavePrx>& streams, size_t& byteSent, IceUtil::Mutex& mutex)
-		: _decoder(decoder), _streams(streams), _byteSent(byteSent), _mutex(mutex)
+	RTAReceiverI(RTATelem::CTADecoder& decoder, std::vector<CTA::RTAWavePrx>& streams, size_t& byteSent, IceUtil::Mutex& mutex, CTA::RTAViewerPrx& viewer, std::vector<int>& triggeredEvent, int& nevent)
+		: _decoder(decoder), _streams(streams), _byteSent(byteSent), _mutex(mutex), _viewer(viewer), _triggeredEvent(triggeredEvent), _nevent(nevent)
 	{
 	}
 
@@ -40,6 +41,9 @@ private:
 	std::vector<CTA::RTAWavePrx>& _streams;
 	size_t& _byteSent;
 	IceUtil::Mutex& _mutex;
+	CTA::RTAViewerPrx& _viewer;
+	std::vector<int>& _triggeredEvent;
+	int& _nevent;
 };
 
 #endif

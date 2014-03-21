@@ -33,6 +33,8 @@ RTAReceiver.Endpoints=default -p 10000 -h localhost
 
 RTAMonitor.Proxy=monitor:default -p 20000 -h localhost
 
+RTAViewer.Proxy=viewer:default -p 10101 -h localhost
+
 #
 # Warn about connection exceptions
 #
