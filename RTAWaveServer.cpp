@@ -28,7 +28,7 @@ public:
 
     virtual void send(Ice::Int pixelNum, Ice::Int pixelSize, const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur)
     {
-        cout << pixelNum << endl;
+        //cout << pixelNum << endl;
     }
 };
 

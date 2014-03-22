@@ -40,4 +40,4 @@ RTAViewer.Proxy=viewer:default -p 10101 -h localhost
 #
 Ice.Warn.Connections=1
 
-Ice.ThreadPool.Server.Size=1
+Ice.ThreadPool.Server.Size=4

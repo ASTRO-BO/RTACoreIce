@@ -23,8 +23,15 @@ using namespace PacketLib;
 
 void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur)
 {
+	const int LARGE = 0;
+	const int MEDIUM = 1;
+	const int SMALL = 2;
+	bool collectevt = false;
+	int lastEvtNum = 0;
+	
 	ByteStreamPtr streamPtr = ByteStreamPtr(new ByteStream((byte*)seqPtr.first, seqPtr.second-seqPtr.first, false));
-
+	_nevent++;
+	
 	RTATelem::CTAPacket& packet = _decoder.getPacket(streamPtr);
 	enum RTATelem::CTAPacketType type = packet.getPacketType();
 
@@ -35,35 +42,62 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 		return;
 	}
 
+	/*
+	 TBT
 	RTATelem::CTACameraTriggerData1& trtel = (RTATelem::CTACameraTriggerData1&) packet;
 
-	if(_viewer)
+	
+
+	if(_viewer && collectevt)
 	{
-		word tt = trtel.getIndexOfCurrentTriggeredTelescope();
-		word ntt = trtel.getNumberOfTriggeredTelescopes();
-
-		if(tt+1 < ntt) {
-			if(_nevent % 100 == 0) {
-				word telid = 50;
-			    _triggeredEvent.push_back(telid);
-			}
-		}
-		else {
-			if(_nevent % 100 == 0) {
-				word evtnum = trtel.getEventNumber();
-		        _viewer->update(_triggeredEvent, evtnum);
-
-/*				std::cout << "[";
+		word evtnum = trtel.getEventNumber();
+		if(evtnum != lastEvtNum) {
+			word tt = trtel.getIndexOfCurrentTriggeredTelescope();
+			word ntt = trtel.getNumberOfTriggeredTelescopes();
+			cout << tt << " " << ntt << endl;
+			_triggeredEvent.push_back(tt);
+			if(_triggeredEvent.size() == ntt) {
+				
+				std::cout << "[";
 				for(unsigned int i=0; i<_triggeredEvent.size(); i++)
 					std::cout << _triggeredEvent[i] << ", ";
-				std::cout << "] evtnum = " << evtnum << std::endl;*/
-
-			    _triggeredEvent.resize(0);
+				std::cout << "] evtnum = " << evtnum << std::endl;
+				
+				_viewer->update(_triggeredEvent, evtnum);
+				collectevt = false;
 			}
-		    _nevent++;
+			
 		}
 	}
-
+	
+	if(_viewer && _nevent % 10000 == 0) {
+		collectevt = true;
+		lastEvtNum = trtel.getEventNumber();
+		_triggeredEvent.resize(0);
+	}
+	*/
+	
+	if(_viewer && _nevent % 1000 == 0) {
+		word evtnum = 4;
+		cout << "send to viewer " << _nevent << " ";
+		word index = (word)(rand() % 50);
+		_triggeredEvent.push_back(index);
+		cout << index << " ";
+		index = (word)(rand() % 50);
+		_triggeredEvent.push_back(index);
+		cout << index << " ";
+		index = (word)(rand() % 50);
+		_triggeredEvent.push_back(index);
+		cout << index << " ";
+		index = (word)(rand() % 50);
+		_triggeredEvent.push_back(index);
+		cout << index << " ";
+		
+		_viewer->update(_triggeredEvent, evtnum);
+		_triggeredEvent.resize(0);
+		cout << endl;
+	}
+	
 /*	const int LARGE = 0;
 	const int MEDIUM = 1;
 	const int SMALL = 2;
@@ -79,8 +113,11 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 		std::cout << "% - A Medium Telescope triggered - Process B activating" << std::endl;
 	else if(teltype == SMALL)
 		std::cout << "% - A Small Telescope triggered - Process C activating" << std::endl;
-
-	_streams[teltype]->send(0, 0, seqPtr);*/
+*/
+	//int teltype = SMALL;
+	int teltype = (int)(rand() % 3);
+	
+	_streams[teltype]->send(0, 0, seqPtr);
 
 	_mutex.lock();
 	_byteSent += streamPtr->size();
