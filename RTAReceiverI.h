@@ -32,6 +32,7 @@ public:
 		: _decoder(decoder), _streams(streams), _byteSent(byteSent), _mutex(mutex), _viewer(viewer), _triggeredEvent(triggeredEvent), _nevent(nevent)
 	{
 	}
+	
 
 virtual void send(const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur);
 
@@ -44,6 +45,7 @@ private:
 	CTA::RTAViewerPrx& _viewer;
 	std::vector<int>& _triggeredEvent;
 	int& _nevent;
+	
 };
 
 #endif

@@ -27,3 +27,5 @@ TopicManager.Proxy=CTAIceStorm/TopicManager:default -h localhost -p 12000
 Ice.Admin.InstanceName=subscriber
 IceMX.Metrics.Debug.GroupBy=id
 IceMX.Metrics.ByParent.GroupBy=parent
+
+Ice.ThreadPool.Server.Size=1

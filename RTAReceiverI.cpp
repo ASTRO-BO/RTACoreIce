@@ -21,6 +21,8 @@
 using namespace CTA;
 using namespace PacketLib;
 
+
+
 void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur)
 {
 	const int LARGE = 0;
@@ -32,6 +34,8 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 	ByteStreamPtr streamPtr = ByteStreamPtr(new ByteStream((byte*)seqPtr.first, seqPtr.second-seqPtr.first, false));
 	_nevent++;
 	
+	//questo pezzo deve essere thread safe (fino al telId)
+	_mutex.lock();
 	RTATelem::CTAPacket& packet = _decoder.getPacket(streamPtr);
 	enum RTATelem::CTAPacketType type = packet.getPacketType();
 
@@ -41,13 +45,14 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 		std::cout << "Warning: Skipping packet from a camera of type " << type << std::endl;
 		return;
 	}
-
-	/*
-	 TBT
+	 
 	RTATelem::CTACameraTriggerData1& trtel = (RTATelem::CTACameraTriggerData1&) packet;
-
+	word telId = trtel.getTelescopeId();
+	ByteStreamPtr camera = trtel.getCameraDataSlow();
+	//fine parte thread safe
+	_mutex.unlock();
 	
-
+	/*
 	if(_viewer && collectevt)
 	{
 		word evtnum = trtel.getEventNumber();
@@ -98,13 +103,11 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 		cout << endl;
 	}
 	
-/*	const int LARGE = 0;
-	const int MEDIUM = 1;
-	const int SMALL = 2;
 
-	int npixels = trtel.getNumberOfPixels();
-	int nsamples = trtel.getNumberOfSamples(0);
-
+	int npixels;
+	int nsamples;
+	//cout << npixels << " " << nsamples << endl;
+	/*
 	int teltype = LARGE; // TODO settare il type in base al numero di pixel/samples
 
 	if(teltype == LARGE)
@@ -117,9 +120,25 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 	//int teltype = SMALL;
 	int teltype = (int)(rand() % 3);
 	
-	_streams[teltype]->send(0, 0, seqPtr);
-
-	_mutex.lock();
+	if(teltype == LARGE) {
+		npixels = 1141;
+		nsamples = 40;
+	}
+	if(teltype == MEDIUM) {
+		npixels = 1141;
+		nsamples = 40;
+	}
+	if(teltype == SMALL) {
+		npixels = 1141;
+		nsamples = 40;
+	}
+	
+	size_t buffsize = camera->size();
+	std::pair<unsigned char*, unsigned char*> seqPtrCamera(camera->getStream(), camera->getStream()+buffsize);
+	_streams[teltype]->send(npixels, nsamples, seqPtrCamera);
+	//_streams[teltype]->send2(seqPtr);
+	
+	//_mutex.lock();
 	_byteSent += streamPtr->size();
-	_mutex.unlock();
+	//_mutex.unlock();
 }

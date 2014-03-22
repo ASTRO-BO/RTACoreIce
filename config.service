@@ -24,7 +24,7 @@ IceStorm.Publish.Endpoints=tcp -h localhost -p 10001:udp -h localhost -p 10001
 # 1 = trace topic creation, subscription, unsubscription
 # 2 = like 1, but with more detailed subscription information
 #
-IceStorm.Trace.TopicManager=2
+IceStorm.Trace.TopicManager=1
 
 #
 # Topic Tracing

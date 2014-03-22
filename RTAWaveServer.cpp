@@ -18,15 +18,165 @@
 #include <IceStorm/IceStorm.h>
 
 #include <RTAWave.h>
+#include "packet/PacketLibDefinition.h"
 
 using namespace std;
 using namespace CTA;
+using namespace PacketLib;
+
+#define PRINTALG 1
+
+bool iszero(double someValue) {
+	if(someValue == 0)
+		return true;
+	if (someValue <  std::numeric_limits<double>::epsilon() &&
+    	someValue > -std::numeric_limits<double>::epsilon())
+    	return true;
+    return false;
+}
+
+void printCamera(word* c, int ssc, int npixels, int nsamples) {
+	cout << "ssc " << ssc << endl;
+	for(int pixel = 0; pixel<npixels; pixel++) {
+		cout << pixel << " ";
+		for(int j=0; j<nsamples; j++)
+			cout << c[pixel * nsamples + j] << " ";
+		cout << endl;
+	}
+	
+}
+
+void printBuffer(word* c, int npixels, int nsamples) {
+	for(int pixel = 0; pixel<npixels; pixel++) {
+		cout << pixel << " ";
+		for(int j=0; j<nsamples; j++)
+			cout << c[pixel * nsamples + j] << " ";
+		cout << endl;
+	}
+}
+
+int flag = 0;
+
+void calcWaveformExtraction1(byte* buffer, int npixels, int nsamples, int ws ) {
+	word *b = (word*) buffer; //should be pedestal subtractred
+	//printBuffer(b, npixels, nsamples);
+	
+	/*
+	 vector<int> maxresv;
+	 maxresv.reserve(npixels);
+	 vector<double> timev;
+	 timev.reserve(npixels);
+	 int* maxres = &maxresv[0];
+	 double* time = &timev[0];
+	 */
+	
+	/*
+	 //save
+	int* maxres = new int[npixels];
+	double* time = new double[npixels];
+	 */
+	
+	//word bl[npixels*nsamples];
+	//memcpy(bl, b, npixels*nsamples*sizeof(word));
+	
+	for(int pixel = 0; pixel<npixels; pixel++) {
+		word* s = b + pixel * nsamples;
+		
+#ifdef PRINTALG
+		if(flag == 0) {
+			
+			cout << pixel << " ";
+			for(int k=0; k<nsamples; k++)
+				cout << s[k] << " ";
+			cout << endl;
+		}
+#endif
+		
+		long max = 0;
+		double maxt = 0;
+		long sumn = 0;
+		long sumd = 0;
+		long maxj = 0;
+		double t = 0;
+		//long sumres[nsamples-ws];
+		
+		for(int j=0; j<=ws-1; j++) {
+			sumn += s[j] * j;
+			sumd += s[j];
+		}
+		
+		max = sumd;
+		if(!iszero(sumd))
+			t = sumn / (double)sumd;
+		maxt = t;
+		maxj = 0;
+		
+		//cout << sumn << " " << sumd << endl;
+		//sumres[0] = sum;
+		for(int j=1; j<nsamples-ws; j++) {
+			
+			sumn = sumn - s[j-1] * (j-1) + s[j+ws-1] * (j+ws-1);
+			sumd = sumd - s[j-1] + s[j+ws-1];
+			//cout << sumn << " " << sumd << endl;
+			
+			//sumres[j] = sum;
+			if(sumd > max) {
+				max = sumd;
+				if(!iszero(sumd))
+					t = sumn / (double)sumd;
+				maxt = t;
+				maxj = j;
+			}
+			
+			
+		}
+		
+		/*for(int j=0; j<nsamples-ws; j++)
+		 if(sumres[j]>max) {
+		 max = sumres[j];
+		 maxj = j;
+		 }
+		 */
+		
+		
+		//maxres.push_back(max);
+		//time.push_back(maxt);
+		
+		/*
+		 save
+		maxres[pixel] = max;
+		time[pixel] = maxt;
+		*/
+		
+#ifdef PRINTALG
+		//>9000
+		//if(flag == 0) cout << pixel << " " << maxt << " " << maxres[pixel] << " " << time[pixel] << " " << endl;
+#endif
+		/*
+		 for(int k=0; k<nsamples; k++)
+		 cout << s[k] << " ";
+		 cout << endl;
+		 */
+	}
+	//SharedPtr<double> shtime(maxt);
+	
+	flag++;
+}
+
+
+
 
 class RTAWaveI : public RTAWave
 {
 public:
 
-    virtual void send(Ice::Int pixelNum, Ice::Int pixelSize, const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur)
+    virtual void send(Ice::Int nPixels, Ice::Int nSamples, const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur)
+    {
+		//ByteStreamPtr cameraPtr = ByteStreamPtr(new ByteStream((byte*)seqPtr.first, seqPtr.second-seqPtr.first, false));
+        //cout << pixelNum << endl;
+		calcWaveformExtraction1((byte*)seqPtr.first, nPixels, nSamples, 6);
+    }
+	virtual void send2(const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur)
     {
         //cout << pixelNum << endl;
     }
