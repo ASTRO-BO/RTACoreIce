@@ -118,8 +118,6 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 	if(_viewer && collectevt)
 	{
 		word evtnum = trtel.getEventNumber();
-		word tt = trtel.getIndexOfCurrentTriggeredTelescope();
-		word ntt = trtel.getNumberOfTriggeredTelescopes();
 
 		//cout << lastEvtNum << " " << evtnum << " " << tt << " " << ntt << endl;
 		if(evtnum != lastEvtNum) {
