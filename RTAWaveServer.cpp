@@ -24,7 +24,7 @@ using namespace std;
 using namespace CTA;
 using namespace PacketLib;
 
-#define PRINTALG 1
+//#define PRINTALG 1
 
 bool iszero(double someValue) {
 	if(someValue == 0)
@@ -57,7 +57,7 @@ void printBuffer(word* c, int npixels, int nsamples) {
 
 int flag = 0;
 
-void calcWaveformExtraction1(byte* buffer, int npixels, int nsamples, int ws ) {
+void calcWaveformExtraction1(byte* buffer, int npixels, int nsamples, int ws, unsigned short* maxres, double* time) {
 	word *b = (word*) buffer; //should be pedestal subtractred
 	//printBuffer(b, npixels, nsamples);
 	
@@ -69,13 +69,10 @@ void calcWaveformExtraction1(byte* buffer, int npixels, int nsamples, int ws ) {
 	 int* maxres = &maxresv[0];
 	 double* time = &timev[0];
 	 */
-	
 	/*
-	 //save
-	int* maxres = new int[npixels];
-	double* time = new double[npixels];
+	 int* maxres = new int[npixels];
+	 double* time = new double[npixels];
 	 */
-	
 	//word bl[npixels*nsamples];
 	//memcpy(bl, b, npixels*nsamples*sizeof(word));
 	
@@ -92,7 +89,7 @@ void calcWaveformExtraction1(byte* buffer, int npixels, int nsamples, int ws ) {
 		}
 #endif
 		
-		long max = 0;
+		unsigned short max = 0;
 		double maxt = 0;
 		long sumn = 0;
 		long sumd = 0;
@@ -142,15 +139,13 @@ void calcWaveformExtraction1(byte* buffer, int npixels, int nsamples, int ws ) {
 		//maxres.push_back(max);
 		//time.push_back(maxt);
 		
-		/*
-		 save
+		
 		maxres[pixel] = max;
 		time[pixel] = maxt;
-		*/
 		
 #ifdef PRINTALG
 		//>9000
-		//if(flag == 0) cout << pixel << " " << maxt << " " << maxres[pixel] << " " << time[pixel] << " " << endl;
+		if(flag == 0) cout << pixel << " " << maxt << " " << maxres[pixel] << " " << time[pixel] << " " << endl;
 #endif
 		/*
 		 for(int k=0; k<nsamples; k++)
@@ -174,7 +169,11 @@ public:
     {
 		//ByteStreamPtr cameraPtr = ByteStreamPtr(new ByteStream((byte*)seqPtr.first, seqPtr.second-seqPtr.first, false));
         //cout << pixelNum << endl;
-		calcWaveformExtraction1((byte*)seqPtr.first, nPixels, nSamples, 6);
+		unsigned short * maxres = new unsigned short[nPixels];
+		double* timeres = new double[nPixels];
+		calcWaveformExtraction1((byte*)seqPtr.first, nPixels, nSamples, 6, maxres, timeres);
+		delete[] maxres;
+		delete[] timeres;
     }
 	virtual void send2(const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur)
     {

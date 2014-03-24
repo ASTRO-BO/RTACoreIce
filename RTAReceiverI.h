@@ -23,6 +23,7 @@
 #include <CTADecoder.h>
 #include <vector>
 #include "RTAMonitorThread.h"
+#include "RTAConfigLoad.h"
 
 class RTAReceiverI : public CTA::RTAReceiver
 {
@@ -31,10 +32,27 @@ public:
 	RTAReceiverI(RTATelem::CTADecoder& decoder, std::vector<CTA::RTAWavePrx>& streams, size_t& byteSent, IceUtil::Mutex& mutex, CTA::RTAViewerPrx& viewer, std::vector<int>& triggeredEvent, int& nevent)
 		: _decoder(decoder), _streams(streams), _byteSent(byteSent), _mutex(mutex), _viewer(viewer), _triggeredEvent(triggeredEvent), _nevent(nevent)
 	{
+		collectevt = false;
+		lastEvtNum = 0;
+		
+		string ctarta;
+        const char* home = getenv("CTARTA");
+	
+		if (!home)
+		{
+			std::cerr << "CTARTA environment variable is not defined." << std::endl;
+		}
+		
+		ctarta = home;
+        
+		
+		ctaconf = new RTAConfig::RTAConfigLoad( ctarta + "/share/rtatelem/PROD2_telconfig.fits.gz" );
+
 	}
 	
+	
 
-virtual void send(const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur);
+	virtual void send(const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur);
 
 private:
 
@@ -45,6 +63,9 @@ private:
 	CTA::RTAViewerPrx& _viewer;
 	std::vector<int>& _triggeredEvent;
 	int& _nevent;
+	bool collectevt;
+	int lastEvtNum;
+	RTAConfig::RTAConfigLoad* ctaconf;
 	
 };
 

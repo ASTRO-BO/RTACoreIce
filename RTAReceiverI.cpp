@@ -28,14 +28,14 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 	const int LARGE = 0;
 	const int MEDIUM = 1;
 	const int SMALL = 2;
-	bool collectevt = false;
-	int lastEvtNum = 0;
+
 	
 	ByteStreamPtr streamPtr = ByteStreamPtr(new ByteStream((byte*)seqPtr.first, seqPtr.second-seqPtr.first, false));
 	_nevent++;
 	
 	//questo pezzo deve essere thread safe (fino al telId)
 	_mutex.lock();
+	
 	RTATelem::CTAPacket& packet = _decoder.getPacket(streamPtr);
 	enum RTATelem::CTAPacketType type = packet.getPacketType();
 
@@ -49,18 +49,21 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 	RTATelem::CTACameraTriggerData1& trtel = (RTATelem::CTACameraTriggerData1&) packet;
 	word telId = trtel.getTelescopeId();
 	ByteStreamPtr camera = trtel.getCameraDataSlow();
-	//fine parte thread safe
-	_mutex.unlock();
+	//cout << trtel.getTelescopeId() << endl;
 	
-	/*
 	if(_viewer && collectevt)
 	{
 		word evtnum = trtel.getEventNumber();
+		word tt = trtel.getIndexOfCurrentTriggeredTelescope();
+		word ntt = trtel.getNumberOfTriggeredTelescopes();
+
+		//cout << lastEvtNum << " " << evtnum << " " << tt << " " << ntt << endl;
 		if(evtnum != lastEvtNum) {
 			word tt = trtel.getIndexOfCurrentTriggeredTelescope();
 			word ntt = trtel.getNumberOfTriggeredTelescopes();
-			cout << tt << " " << ntt << endl;
+			//cout << tt << " " << ntt << endl;
 			_triggeredEvent.push_back(tt);
+			
 			if(_triggeredEvent.size() == ntt) {
 				
 				std::cout << "[";
@@ -75,13 +78,22 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 		}
 	}
 	
-	if(_viewer && _nevent % 10000 == 0) {
+	if(_viewer && _nevent % 1000 == 0) {
 		collectevt = true;
 		lastEvtNum = trtel.getEventNumber();
 		_triggeredEvent.resize(0);
 	}
-	*/
 	
+	//TODO: add RTAConfig instead of read npixels and nsamples from source packets
+	int npixels;
+	int nsamples;
+	npixels = trtel.getNumberOfPixels();
+	int pixel = 0;
+	nsamples = trtel.getNumberOfSamples(pixel);
+	
+	_mutex.unlock();
+	
+	/*
 	if(_viewer && _nevent % 1000 == 0) {
 		word evtnum = 4;
 		cout << "send to viewer " << _nevent << " ";
@@ -102,10 +114,9 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 		_triggeredEvent.resize(0);
 		cout << endl;
 	}
-	
+	*/
 
-	int npixels;
-	int nsamples;
+	
 	//cout << npixels << " " << nsamples << endl;
 	/*
 	int teltype = LARGE; // TODO settare il type in base al numero di pixel/samples
@@ -118,9 +129,26 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 		std::cout << "% - A Small Telescope triggered - Process C activating" << std::endl;
 */
 	//int teltype = SMALL;
-	int teltype = (int)(rand() % 3);
+	RTAConfig::RTAConfigLoad::Telescope* tel = ctaconf->getTelescopeStruct(telId);
+	//cout << npixels << " " << nsamples << " - "  << tel->fromTeltoTelType.fromTelTypetoCamType.NPixel << " " << tel->fromTeltoTelType.fromTelTypetoCamType.fromCameratoPixType.NSamples <<endl;
+	int64_t telTypeSim = tel->fromTeltoTelType.TelType;
+	//cout << telTypeSim << endl;
 	
-	if(teltype == LARGE) {
+	int teltype;// = (int)(rand() % 3);
+	
+	switch(telTypeSim) {
+		case 10408418:
+			teltype = SMALL;
+			break;
+		case 3709425:
+			teltype = MEDIUM;
+			break;
+		case 138704810:
+			teltype = LARGE;
+			break;
+	}
+	
+	/*if(teltype == LARGE) {
 		npixels = 1141;
 		nsamples = 40;
 	}
@@ -132,7 +160,7 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 		npixels = 1141;
 		nsamples = 40;
 	}
-	
+	*/
 	size_t buffsize = camera->size();
 	std::pair<unsigned char*, unsigned char*> seqPtrCamera(camera->getStream(), camera->getStream()+buffsize);
 	_streams[teltype]->send(npixels, nsamples, seqPtrCamera);
