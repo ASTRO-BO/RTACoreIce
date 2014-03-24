@@ -27,7 +27,7 @@
 #include "RTAMonitorThread.h"
 #include "RTAConfigLoad.h"
 
-#ifdef USESHM 1
+#ifdef USESHM
 // semaphore
 #include <fcntl.h>
 #include <sys/stat.h>

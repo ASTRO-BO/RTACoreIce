@@ -15,12 +15,15 @@
 
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
-#include <IceStorm/IceStorm.h>
 #include <CTAStream.h>
 #include <CTACameraTriggerData0.h>
 #include "RTAReceiverI.h"
 #include "RTAMonitorThread.h"
 #include "RTAViewer.h"
+
+#ifdef USE_ICESTORM
+#include <IceStorm/IceStorm.h>
+#endif
 
 using namespace std;
 using namespace CTA;
@@ -35,7 +38,11 @@ public:
 int main(int argc, char* argv[])
 {
     RTAReceiver_Ice app;
+#ifdef USE_ICESTORM
     return app.main(argc, argv, "config.receiver");
+#else
+	return app.main(argc, argv, "config.receiverNoStorm");
+#endif
 }
 
 int RTAReceiver_Ice::run(int argc, char* argv[])
@@ -47,6 +54,8 @@ int RTAReceiver_Ice::run(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 
+std::vector<RTAWavePrx> streams;
+#ifdef USE_ICESTORM
 	// Get a proxy for the 3 topics
 	const int TOPICNUM = 3;
 	const std::string topicNames[TOPICNUM] = { "LargeTelescope", "MediumTelescope", "SmallTelescope" };
@@ -59,7 +68,6 @@ int RTAReceiver_Ice::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-	std::vector<RTAWavePrx> streams;
 	for(int i=0; i<TOPICNUM; i++)
 	{
 	    IceStorm::TopicPrx topic;
@@ -84,6 +92,23 @@ int RTAReceiver_Ice::run(int argc, char* argv[])
 	    RTAWavePrx prx = RTAWavePrx::uncheckedCast(receiver);
 		streams.push_back(prx);
 	}
+#else
+    // get RTAWave 1 proxy
+    try
+    {
+		RTAWavePrx wave1 = CTA::RTAWavePrx::checkedCast(communicator()->propertyToProxy("RTAWave1.Proxy"))->ice_oneway();
+		RTAWavePrx wave2 = CTA::RTAWavePrx::checkedCast(communicator()->propertyToProxy("RTAWave2.Proxy"))->ice_oneway();
+		RTAWavePrx wave3 = CTA::RTAWavePrx::checkedCast(communicator()->propertyToProxy("RTAWave3.Proxy"))->ice_oneway();
+		streams.push_back(wave1);
+		streams.push_back(wave2);
+		streams.push_back(wave3);
+    }
+    catch(...)
+    {
+		cerr << appName() << ": cannot connect to the 3 RTAWave servers." << endl;
+		return EXIT_FAILURE;
+    }
+#endif
 
     // get a RTAMonitor proxy
     CTA::RTAMonitorPrx monitor = 0;

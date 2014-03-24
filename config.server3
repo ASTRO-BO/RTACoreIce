@@ -1,0 +1,11 @@
+RTAWave.Endpoints=default -p 50003 -h localhost
+
+#
+# IceMX configuration.
+#
+#Ice.Admin.Endpoints=tcp -h localhost -p 10002
+Ice.Admin.InstanceName=wave
+IceMX.Metrics.Debug.GroupBy=id
+IceMX.Metrics.ByParent.GroupBy=parent
+
+Ice.ThreadPool.Server.Size=1

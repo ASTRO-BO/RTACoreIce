@@ -1,0 +1,32 @@
+#
+# IceMX configuration.
+#
+#Ice.Admin.Endpoints=tcp -h localhost -p 10003
+Ice.Admin.InstanceName=publisher
+IceMX.Metrics.Debug.GroupBy=id
+IceMX.Metrics.ByParent.GroupBy=parent
+
+### SERVER
+Ice.MessageSizeMax=1000000000
+
+#
+# The server creates one single object adapter with the name
+# "RTAReceiver". The following line sets the endpoints for this
+# adapter.
+#
+RTAReceiver.Endpoints=default -p 10000 -h localhost
+
+RTAMonitor.Proxy=monitor:default -p 20000 -h localhost
+
+RTAViewer.Proxy=viewer:default -p 10101 -h localhost
+
+RTAWave1.Proxy=wave:default -p 50001 -h localhost
+RTAWave2.Proxy=wave:default -p 50002 -h localhost
+RTAWave3.Proxy=wave:default -p 50003 -h localhost
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
+
+Ice.ThreadPool.Server.Size=1
