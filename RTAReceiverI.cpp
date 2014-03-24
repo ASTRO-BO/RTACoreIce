@@ -37,6 +37,10 @@ int RTAReceiverI::initShm() {
 	}
 	unsigned char* shm = (unsigned char*) shmat(shmid, NULL, 0);
 	unsigned char* shmPtr = shm;
+
+	// Destroy existing semaphores
+	sem_unlink(semFullName);
+	sem_unlink(semEmptyName);
 	
 	// Create semaphores
 	full = sem_open(semFullName, O_CREAT, 0644, 0);
