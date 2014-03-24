@@ -16,6 +16,8 @@
 #ifndef _RTARECEIVER_I_H
 #define _RTARECEIVER_I_H
 
+#define USESHM 1
+
 #include "RTAReceiver.h"
 #include "RTAMonitor.h"
 #include "RTAViewer.h"
@@ -24,6 +26,13 @@
 #include <vector>
 #include "RTAMonitorThread.h"
 #include "RTAConfigLoad.h"
+
+#ifdef USESHM 1
+// semaphore
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <semaphore.h>
+#endif
 
 class RTAReceiverI : public CTA::RTAReceiver
 {
@@ -47,10 +56,18 @@ public:
         
 		
 		ctaconf = new RTAConfig::RTAConfigLoad( ctarta + "/share/rtatelem/PROD2_telconfig.fits.gz" );
+		cout << "Loaded RTA config" << endl;
+#ifdef USESHM
+		cout << "start SHM initialization" << endl;
+		if(initShm())
+			sendShm();
+#endif
 
 	}
 	
-	
+	~RTAReceiverI() {
+		cout << "destroy" << endl;
+	}
 
 	virtual void send(const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur);
 
@@ -66,6 +83,19 @@ private:
 	bool collectevt;
 	int lastEvtNum;
 	RTAConfig::RTAConfigLoad* ctaconf;
+	
+#ifdef USESHM
+protected:
+	
+	virtual int initShm();
+	virtual void sendShm();
+	
+	//shm
+	dword* sizeShmPtr;
+	byte* bufferShmPtr;
+	sem_t* full;
+	sem_t* empty;
+#endif
 	
 };
 

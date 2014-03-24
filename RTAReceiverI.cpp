@@ -21,7 +21,67 @@
 using namespace CTA;
 using namespace PacketLib;
 
+#ifdef USESHM
+// shm
+#include "shm_common.h"
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
+int RTAReceiverI::initShm() {
+	// Create a virtual memory from the shm (of key shmKey)
+	key_t key = shmKey;
+	int shmid = shmget(key, shmSize, IPC_CREAT | 0666);
+	if (shmid < 0) {
+		cerr << "Failure in shmget" << endl;
+		return 0;
+	}
+	unsigned char* shm = (unsigned char*) shmat(shmid, NULL, 0);
+	unsigned char* shmPtr = shm;
+	
+	// Create semaphores
+	full = sem_open(semFullName, O_CREAT, 0644, 0);
+	if (full == SEM_FAILED) {
+		cerr << "Unable to create full semaphore" << endl;
+		return 0;
+	}
+	empty = sem_open(semEmptyName, O_CREAT, 0644, 1);
+	if (empty == SEM_FAILED) {
+		cerr << "Unable to create empty semaphore" << endl;
+		return 0;
+	}
+	
+	// Allocate space for activatememorycopy
+	byte* buffermemory = new byte[2000*50*sizeof(word)];
+		
+	int test = *((int*)shmPtr);
+	shmPtr += sizeof(int);
+	bool activatememorycopy = *((bool*)shmPtr);
+	shmPtr += sizeof(bool);
+	bool calcalg = *((bool*)shmPtr);
+	shmPtr += sizeof(bool);
+	
+	sizeShmPtr = (dword*)shmPtr;
+	bufferShmPtr = (byte*)shmPtr+sizeof(dword);
+	cout << "SHM initialized" << endl;
+	return 1;
+
+}
+
+void RTAReceiverI::sendShm() {
+	while(1) {
+		cout << "wait..." << endl;
+		sem_wait(full);
+		ByteStreamPtr buffPtr = ByteStreamPtr(new ByteStream(bufferShmPtr, *sizeShmPtr, false));
+		cout << "packet received" << endl;
+		//TODO check sizeShmPtr
+		std::pair<unsigned char*, unsigned char*> seqPtr(buffPtr->getStream(), buffPtr->getStream()+ *sizeShmPtr);
+		Ice::Current cur;
+		//TODO check cur
+		send(seqPtr, cur);
+		sem_post(empty);
+	}
+}
+#endif
 
 void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur)
 {
@@ -166,7 +226,7 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 	_streams[teltype]->send(npixels, nsamples, seqPtrCamera);
 	//_streams[teltype]->send2(seqPtr);
 	
-	//_mutex.lock();
+	_mutex.lock();
 	_byteSent += streamPtr->size();
-	//_mutex.unlock();
+	_mutex.unlock();
 }

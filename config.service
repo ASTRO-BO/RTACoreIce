@@ -72,3 +72,5 @@ Freeze.DbEnv.IceStorm.DbHome=db
 Ice.Admin.InstanceName=icestorm
 IceMX.Metrics.Debug.GroupBy=id
 IceMX.Metrics.ByParent.GroupBy=parent
+
+Ice.ThreadPool.Server.Size=4
