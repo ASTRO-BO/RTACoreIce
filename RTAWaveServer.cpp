@@ -24,8 +24,6 @@ using namespace std;
 using namespace CTA;
 using namespace PacketLib;
 
-//#define PRINTALG 1
-
 bool iszero(double someValue) {
 	if(someValue == 0)
 		return true;
@@ -55,9 +53,13 @@ void printBuffer(word* c, int npixels, int nsamples) {
 	}
 }
 
-int flag = 0;
 
-void calcWaveformExtraction1(byte* buffer, int npixels, int nsamples, int ws, unsigned short* maxres, double* time) {
+//#define PRINTALG 1
+int flag = 0;
+//unsigned short maxres[3000];
+//double timeres[3000];
+
+void calcWaveformExtraction1(byte* buffer, int npixels, int nsamples, int ws, unsigned short * maxresext, double * timeresext) {
 	word *b = (word*) buffer; //should be pedestal subtractred
 	//printBuffer(b, npixels, nsamples);
 	
@@ -69,10 +71,13 @@ void calcWaveformExtraction1(byte* buffer, int npixels, int nsamples, int ws, un
 	 int* maxres = &maxresv[0];
 	 double* time = &timev[0];
 	 */
-	/*
-	 int* maxres = new int[npixels];
-	 double* time = new double[npixels];
-	 */
+	
+	unsigned short* maxres = new unsigned short[npixels];
+	double* timeres = new double[npixels];
+	//maxresext = maxres;
+	//timeresext = time;
+	
+	
 	//word bl[npixels*nsamples];
 	//memcpy(bl, b, npixels*nsamples*sizeof(word));
 	
@@ -141,7 +146,7 @@ void calcWaveformExtraction1(byte* buffer, int npixels, int nsamples, int ws, un
 		
 		
 		maxres[pixel] = max;
-		time[pixel] = maxt;
+		timeres[pixel] = maxt;
 		
 #ifdef PRINTALG
 		//>9000
@@ -156,6 +161,11 @@ void calcWaveformExtraction1(byte* buffer, int npixels, int nsamples, int ws, un
 	//SharedPtr<double> shtime(maxt);
 	
 	flag++;
+	//return maxres;
+	//maxresext = maxres;
+	//timeresext = timeres;
+	memcpy(maxresext, maxres, sizeof(unsigned short) * npixels);
+	//memcpy(timeresext, timeres, sizeof(double) * npixels);
 }
 
 

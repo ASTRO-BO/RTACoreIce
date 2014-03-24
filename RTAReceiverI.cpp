@@ -73,10 +73,10 @@ int RTAReceiverI::initShm() {
 
 void RTAReceiverI::sendShm() {
 	while(1) {
-		cout << "wait..." << endl;
+		//cout << "wait..." << endl;
 		sem_wait(full);
 		ByteStreamPtr buffPtr = ByteStreamPtr(new ByteStream(bufferShmPtr, *sizeShmPtr, false));
-		cout << "packet received" << endl;
+		//cout << "packet received" << endl;
 		//TODO check sizeShmPtr
 		std::pair<unsigned char*, unsigned char*> seqPtr(buffPtr->getStream(), buffPtr->getStream()+ *sizeShmPtr);
 		Ice::Current cur;
