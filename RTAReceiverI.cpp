@@ -189,19 +189,38 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 		std::cout << "% - A Small Telescope triggered - Process C activating" << std::endl;
 */
 	//int teltype = SMALL;
-	RTAConfig::RTAConfigLoad::Telescope* tel = ctaconf->getTelescopeStruct(telId);
-	//cout << npixels << " " << nsamples << " - "  << tel->fromTeltoTelType.fromTelTypetoCamType.NPixel << " " << tel->fromTeltoTelType.fromTelTypetoCamType.fromCameratoPixType.NSamples <<endl;
-	int64_t telTypeSim = tel->fromTeltoTelType.TelType;
+	RTAConfig::RTAConfigLoad::Telescope* telStruct = ctaconf->getTelescopeStruct(telId);
+	//cout << npixels << " " << nsamples << " - "  << telStruct->fromTeltoTelType.fromTelTypetoCamType.NPixel << " " << telStruct->fromTeltoTelType.fromTelTypetoCamType.fromCameratoPixType.NSamples <<endl;
+	int64_t telTypeSim = telStruct->fromTeltoTelType.TelType;
+	
+	struct RTAConfig::RTAConfigLoad::TelescopeType *telTypeStruct;
+	struct RTAConfig::RTAConfigLoad::CameraType *camTypeStruct;
+	struct RTAConfig::RTAConfigLoad::MirrorType *mirTypeStruct;
+	
+	telTypeStruct = ctaconf->getTelescopeTypeStruct(telTypeSim);
+	mirTypeStruct = ctaconf->getMirrorTypeStruct((*telTypeStruct).fromTelTypetoMirType.mirType);
+	
+	
+	camTypeStruct = ctaconf->getCameraTypeStruct((*telTypeStruct).fromTelTypetoCamType.camType);
+	// The attribute stores the number of pixels
+	npixels =  (*camTypeStruct).NPixel;
+	
+	struct RTAConfig::RTAConfigLoad::PixelType *pixelTypeStruct = ctaconf->getPixelTypeStruct((*camTypeStruct).fromCameratoPixType.pixType);
+	//word nsamples = (*pixelTypeStruct).NSamples;
+	nsamples = (*pixelTypeStruct).NSamples;
+	cout << npixels << " " << nsamples  << endl;
+	
+	
 	//cout << telTypeSim << endl;
 	
 	int teltype;// = (int)(rand() % 3);
 	
 	switch(telTypeSim) {
 		case 10408418:
-			teltype = SMALL;
+			teltype = MEDIUM;
 			break;
 		case 3709425:
-			teltype = MEDIUM;
+			teltype = SMALL;
 			break;
 		case 138704810:
 			teltype = LARGE;

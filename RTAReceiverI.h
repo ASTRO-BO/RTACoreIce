@@ -16,7 +16,7 @@
 #ifndef _RTARECEIVER_I_H
 #define _RTARECEIVER_I_H
 
-#define USESHM 1
+//#define USESHM 1
 
 #include "RTAReceiver.h"
 #include "RTAMonitor.h"
