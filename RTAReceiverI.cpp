@@ -208,7 +208,7 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 	struct RTAConfig::RTAConfigLoad::PixelType *pixelTypeStruct = ctaconf->getPixelTypeStruct((*camTypeStruct).fromCameratoPixType.pixType);
 	//word nsamples = (*pixelTypeStruct).NSamples;
 	nsamples = (*pixelTypeStruct).NSamples;
-	cout << npixels << " " << nsamples  << endl;
+	//cout << npixels << " " << nsamples  << endl;
 	
 	
 	//cout << telTypeSim << endl;
