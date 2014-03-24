@@ -17,6 +17,7 @@
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 
+#include <limits>
 #include <RTAWave.h>
 #include "packet/PacketLibDefinition.h"
 
@@ -164,6 +165,9 @@ void calcWaveformExtraction1(byte* buffer, int npixels, int nsamples, int ws, un
 class RTAWaveI : public RTAWave
 {
 public:
+	RTAWaveI(int serverNum) : _serverNum(serverNum)
+	{
+	}
 
     virtual void send(Ice::Int nPixels, Ice::Int nSamples, const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur)
     {
@@ -179,6 +183,9 @@ public:
     {
         //cout << pixelNum << endl;
     }
+
+private:
+	int _serverNum;
 };
 
 class RTAWaveServer : public Ice::Application
@@ -192,7 +199,12 @@ int
 main(int argc, char* argv[])
 {
     RTAWaveServer app;
+#ifdef USE_ICESTORM
     return app.main(argc, argv, "config.sub");
+#else
+    return app.main(argc, argv, "config.server1");
+#endif
+
 }
 
 void
@@ -304,6 +316,7 @@ RTAWaveServer::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+#ifdef USE_ICESTORM
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
         communicator()->propertyToProxy("TopicManager.Proxy"));
     if(!manager)
@@ -346,10 +359,6 @@ RTAWaveServer::run(int argc, char* argv[])
         subId.name = IceUtil::generateUUID();
     }
     Ice::ObjectPrx wave = adapter->add(new RTAWaveI, subId);
-
-    //
-    // Activate the object adapter before subscribing.
-    //
     adapter->activate();
 
     IceStorm::QoS qos;
@@ -407,10 +416,22 @@ RTAWaveServer::run(int argc, char* argv[])
         cout << "reactivating persistent wave" << endl;
     }
 
+    topic->unsubscribe(wave);
+#else
+
+	Ice::PropertiesPtr props = communicator()->getProperties();
+	int serverNum = props->getPropertyAsInt("RTAWave.ServerNumber");
+
+
+	// Create an adapter for RTAWave
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("RTAWave");
+    RTAWavePtr servant = new RTAWaveI(serverNum);
+    adapter->add(servant, communicator()->stringToIdentity("wave"));
+    adapter->activate();
+#endif
+
     shutdownOnInterrupt();
     communicator()->waitForShutdown();
-
-    topic->unsubscribe(wave);
 
     return EXIT_SUCCESS;
 }
