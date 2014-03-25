@@ -21,11 +21,11 @@
 #include <RTAWave.h>
 #include "packet/PacketLibDefinition.h"
 
+//#define USE_ICESTORM 1
+
 using namespace std;
 using namespace CTA;
 using namespace PacketLib;
-
-//#define PRINTALG 1
 
 bool iszero(double someValue) {
 	if(someValue == 0)
@@ -56,9 +56,13 @@ void printBuffer(word* c, int npixels, int nsamples) {
 	}
 }
 
-int flag = 0;
 
-void calcWaveformExtraction1(byte* buffer, int npixels, int nsamples, int ws, unsigned short* maxres, double* time) {
+//#define PRINTALG 1
+int flag = 0;
+//unsigned short maxres[3000];
+//double timeres[3000];
+
+void calcWaveformExtraction1(byte* buffer, int npixels, int nsamples, int ws, unsigned short * maxresext, double * timeresext) {
 	word *b = (word*) buffer; //should be pedestal subtractred
 	//printBuffer(b, npixels, nsamples);
 	
@@ -70,10 +74,13 @@ void calcWaveformExtraction1(byte* buffer, int npixels, int nsamples, int ws, un
 	 int* maxres = &maxresv[0];
 	 double* time = &timev[0];
 	 */
-	/*
-	 int* maxres = new int[npixels];
-	 double* time = new double[npixels];
-	 */
+	
+	unsigned short* maxres = new unsigned short[npixels];
+	double* timeres = new double[npixels];
+	//maxresext = maxres;
+	//timeresext = time;
+	
+	
 	//word bl[npixels*nsamples];
 	//memcpy(bl, b, npixels*nsamples*sizeof(word));
 	
@@ -142,7 +149,7 @@ void calcWaveformExtraction1(byte* buffer, int npixels, int nsamples, int ws, un
 		
 		
 		maxres[pixel] = max;
-		time[pixel] = maxt;
+		timeres[pixel] = maxt;
 		
 #ifdef PRINTALG
 		//>9000
@@ -157,6 +164,11 @@ void calcWaveformExtraction1(byte* buffer, int npixels, int nsamples, int ws, un
 	//SharedPtr<double> shtime(maxt);
 	
 	flag++;
+	//return maxres;
+	//maxresext = maxres;
+	//timeresext = timeres;
+	memcpy(maxresext, maxres, sizeof(unsigned short) * npixels);
+	//memcpy(timeresext, timeres, sizeof(double) * npixels);
 }
 
 
@@ -179,10 +191,14 @@ public:
 		delete[] maxres;
 		delete[] timeres;
     }
-	virtual void send2(const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur)
+	virtual void sendGPU(const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur)
     {
         //cout << pixelNum << endl;
     }
+	
+	void initCUDA() {
+		
+	}
 
 private:
 	int _serverNum;
@@ -358,7 +374,7 @@ RTAWaveServer::run(int argc, char* argv[])
     {
         subId.name = IceUtil::generateUUID();
     }
-    Ice::ObjectPrx wave = adapter->add(new RTAWaveI, subId);
+    Ice::ObjectPrx wave = adapter->add(new RTAWaveI(0), subId);
     adapter->activate();
 
     IceStorm::QoS qos;

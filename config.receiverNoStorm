@@ -29,4 +29,4 @@ RTAWave3.Proxy=wave:default -p 50003 -h localhost
 #
 Ice.Warn.Connections=1
 
-Ice.ThreadPool.Server.Size=1
+Ice.ThreadPool.Server.Size=4

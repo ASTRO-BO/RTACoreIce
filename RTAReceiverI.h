@@ -81,7 +81,7 @@ private:
 	std::vector<int>& _triggeredEvent;
 	int& _nevent;
 	bool collectevt;
-	int lastEvtNum;
+	dword lastEvtNum;
 	RTAConfig::RTAConfigLoad* ctaconf;
 	
 #ifdef USESHM

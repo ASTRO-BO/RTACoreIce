@@ -8,4 +8,4 @@ Ice.Admin.InstanceName=wave
 IceMX.Metrics.Debug.GroupBy=id
 IceMX.Metrics.ByParent.GroupBy=parent
 
-Ice.ThreadPool.Server.Size=1
+Ice.ThreadPool.Server.Size=2
