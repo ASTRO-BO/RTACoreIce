@@ -49,7 +49,7 @@ public:
 				if(_monitor)
 				{
 					CTA::Parameter rate;
-					rate.apid = 1;
+					rate.apid = 201;
 					rate.type = 0;
 
 					rate.timestamp = now.toMicroSeconds();
