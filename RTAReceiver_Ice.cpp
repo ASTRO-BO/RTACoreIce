@@ -21,6 +21,8 @@
 #include "RTAMonitorThread.h"
 #include "RTAViewer.h"
 
+//#define USE_ICESTORM 1
+
 #ifdef USE_ICESTORM
 #include <IceStorm/IceStorm.h>
 #endif
@@ -97,11 +99,12 @@ std::vector<RTAWavePrx> streams;
     try
     {
 		RTAWavePrx wave1 = CTA::RTAWavePrx::checkedCast(communicator()->propertyToProxy("RTAWave1.Proxy"))->ice_oneway();
-		RTAWavePrx wave2 = CTA::RTAWavePrx::checkedCast(communicator()->propertyToProxy("RTAWave2.Proxy"))->ice_oneway();
-		RTAWavePrx wave3 = CTA::RTAWavePrx::checkedCast(communicator()->propertyToProxy("RTAWave3.Proxy"))->ice_oneway();
 		streams.push_back(wave1);
+		RTAWavePrx wave2 = CTA::RTAWavePrx::checkedCast(communicator()->propertyToProxy("RTAWave2.Proxy"))->ice_oneway();
 		streams.push_back(wave2);
+		RTAWavePrx wave3 = CTA::RTAWavePrx::checkedCast(communicator()->propertyToProxy("RTAWave3.Proxy"))->ice_oneway();
 		streams.push_back(wave3);
+		
     }
     catch(...)
     {

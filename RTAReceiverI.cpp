@@ -97,11 +97,13 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 	ByteStreamPtr streamPtr = ByteStreamPtr(new ByteStream((byte*)seqPtr.first, seqPtr.second-seqPtr.first, false));
 	_nevent++;
 	
-	//questo pezzo deve essere thread safe (fino al telId)
+		//questo pezzo deve essere thread safe (fino al telId)
 	_mutex.lock();
 	
+	_byteSent += streamPtr->size();
 	RTATelem::CTAPacket& packet = _decoder.getPacket(streamPtr);
 	enum RTATelem::CTAPacketType type = packet.getPacketType();
+	
 
 	// skipping packets of camera type different from triggerdata1
 	if(type != RTATelem::CTA_CAMERA_TRIGGERDATA_1)
@@ -111,28 +113,34 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 	}
 	 
 	RTATelem::CTACameraTriggerData1& trtel = (RTATelem::CTACameraTriggerData1&) packet;
-	word telId = trtel.getTelescopeId();
-	ByteStreamPtr camera = trtel.getCameraDataSlow();
-	//cout << trtel.getTelescopeId() << endl;
 	
-	if(_viewer && collectevt)
-	{
-		word evtnum = trtel.getEventNumber();
+	word telId = trtel.getTelescopeId();
 
-		//cout << lastEvtNum << " " << evtnum << " " << tt << " " << ntt << endl;
+	ByteStreamPtr camera = trtel.getCameraDataSlow();
+
+	//cout << "- " << _nevent << " " << telId << endl;
+	
+	if(_viewer && collectevt == true)
+	{
+		//PARTE DA MIGLIORARE - TUTTI GLI ACCESSI QUI SONO LENTI trtel.
+		//ATTENZIONE PERO' CHE VIENE FATTA OGNI X PACKETS
+		dword evtnum = trtel.getEventNumber();
+
+		//cout << " + " << lastEvtNum << " " << evtnum << endl;
 		if(evtnum != lastEvtNum) {
+			
 			word tt = trtel.getIndexOfCurrentTriggeredTelescope();
 			word ntt = trtel.getNumberOfTriggeredTelescopes();
-			//cout << tt << " " << ntt << endl;
-			_triggeredEvent.push_back(tt);
-			
+			//cout << " ++ " << telId << " " << tt << " " << ntt << endl;
+			_triggeredEvent.push_back(telId);
+			//cout << " +++ " << _triggeredEvent.size() << endl;
 			if(_triggeredEvent.size() == ntt) {
-				
+				/*
 				std::cout << "[";
 				for(unsigned int i=0; i<_triggeredEvent.size(); i++)
 					std::cout << _triggeredEvent[i] << ", ";
 				std::cout << "] evtnum = " << evtnum << std::endl;
-				
+				*/
 				_viewer->update(_triggeredEvent, evtnum);
 				collectevt = false;
 			}
@@ -140,21 +148,22 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 		}
 	}
 	
-	if(_viewer && _nevent % 1000 == 0) {
+	if(_viewer && _nevent % 5000 == 0) {
 		collectevt = true;
 		lastEvtNum = trtel.getEventNumber();
 		_triggeredEvent.resize(0);
 	}
 	
 	//TODO: add RTAConfig instead of read npixels and nsamples from source packets
-	int npixels;
-	int nsamples;
+	
+	/*
 	npixels = trtel.getNumberOfPixels();
 	int pixel = 0;
 	nsamples = trtel.getNumberOfSamples(pixel);
-	
+	*/
 	_mutex.unlock();
-	
+	int npixels;
+	int nsamples;
 	/*
 	if(_viewer && _nevent % 1000 == 0) {
 		word evtnum = 4;
@@ -242,12 +251,14 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 		nsamples = 40;
 	}
 	*/
+	
 	size_t buffsize = camera->size();
 	std::pair<unsigned char*, unsigned char*> seqPtrCamera(camera->getStream(), camera->getStream()+buffsize);
 	_streams[teltype]->send(npixels, nsamples, seqPtrCamera);
 	//_streams[teltype]->send2(seqPtr);
 	
-	_mutex.lock();
+	/*_mutex.lock();
 	_byteSent += streamPtr->size();
 	_mutex.unlock();
+	*/
 }

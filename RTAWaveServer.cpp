@@ -21,6 +21,8 @@
 #include <RTAWave.h>
 #include "packet/PacketLibDefinition.h"
 
+//#define USE_ICESTORM 1
+
 using namespace std;
 using namespace CTA;
 using namespace PacketLib;
@@ -189,10 +191,14 @@ public:
 		delete[] maxres;
 		delete[] timeres;
     }
-	virtual void send2(const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur)
+	virtual void sendGPU(const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur)
     {
         //cout << pixelNum << endl;
     }
+	
+	void initCUDA() {
+		
+	}
 
 private:
 	int _serverNum;
@@ -368,7 +374,7 @@ RTAWaveServer::run(int argc, char* argv[])
     {
         subId.name = IceUtil::generateUUID();
     }
-    Ice::ObjectPrx wave = adapter->add(new RTAWaveI, subId);
+    Ice::ObjectPrx wave = adapter->add(new RTAWaveI(0), subId);
     adapter->activate();
 
     IceStorm::QoS qos;
