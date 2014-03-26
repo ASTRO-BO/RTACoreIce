@@ -20,6 +20,8 @@
 #include <limits>
 #include <RTAWave.h>
 #include "packet/PacketLibDefinition.h"
+//#include <memory>
+
 
 //#define USE_ICESTORM 1
 
@@ -197,7 +199,7 @@ public:
     }
 	
 	void initCUDA() {
-		
+		//std::vector< std::tr1::shared_ptr< unsigned short > > myVector( 3 );
 	}
 
 private:

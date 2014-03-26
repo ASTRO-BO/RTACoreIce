@@ -221,6 +221,8 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 	nsamples = (*pixelTypeStruct).NSamples;
 	//cout << npixels << " " << nsamples  << endl;
 	
+	struct RTAConfig::RTAConfigLoad::Pixel *pixStruct = ctaconf->getPixelStruct((*camTypeStruct).camType, 100);
+	
 	
 	//cout << telTypeSim << endl;
 	

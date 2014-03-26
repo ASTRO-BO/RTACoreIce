@@ -28,7 +28,7 @@ SLICE_SRCS	= RTAWave.ice RTAReceiver.ice RTAMonitor.ice RTAViewer.ice
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -O3 -I. $(CPPFLAGS)
+CPPFLAGS	:= -O3 -std="c++11" -I. $(CPPFLAGS)
 LIBS		:= -lIceStorm $(LIBS) -lRTAtelem -lpacket -lRTAconfig -lQLBase -lcfitsio
 
 $(PUBLISHER): $(OBJS) $(POBJS)
