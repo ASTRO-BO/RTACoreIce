@@ -24,7 +24,6 @@
 #include "RTAWave.h"
 #include <CTADecoder.h>
 #include <vector>
-#include "RTAMonitorThread.h"
 #include "RTAConfigLoad.h"
 
 #ifdef USESHM

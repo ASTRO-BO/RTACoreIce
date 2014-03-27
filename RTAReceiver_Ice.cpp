@@ -138,8 +138,8 @@ std::vector<RTAWavePrx> streams;
 	std::vector<int> triggeredEvent;
 	int nevent = 0;
     IceUtil::Mutex mutex;
-    RTAMonitorThread monitorThread(monitor, byteSent, mutex);
-    monitorThread.start();
+    IceUtil::ThreadPtr monitorThread = new RTAMonitorThread(monitor, byteSent, mutex);
+    monitorThread->start();
 
 	// Use a CTADecoder
 	RTATelem::CTADecoder decoder(argv[1]);

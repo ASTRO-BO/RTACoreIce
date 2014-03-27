@@ -55,7 +55,15 @@ public:
 					rate.timestamp = now.toMicroSeconds();
 					rate.value = _byteSent / elapsedUs;
 
-					_monitor->sendParameter(rate);
+					try {
+						_monitor->sendParameter(rate);
+					}
+					catch(Ice::ConnectionRefusedException& e)
+					{
+						// something goes wrong with the monitor
+						std::cout << "The monitor has gone.." << std::endl;
+						return;
+					}
 				}
 				else
 				{
