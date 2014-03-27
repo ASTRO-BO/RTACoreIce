@@ -13,8 +13,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef _MONITOR_THREAD_H
-#define _MONITOR_THREAD_H
+#ifndef _RECEIVER_MONITOR_THREAD_H
+#define _RECEIVER_MONITOR_THREAD_H
 
 #include <IceUtil/Thread.h>
 #include <iostream>
