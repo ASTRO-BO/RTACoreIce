@@ -39,8 +39,9 @@ ifneq (, $(findstring root, $(LINKERENV)))
         CPPFLAGS += $(ROOTCONF)
 endif
 
-CPPFLAGS	:= -O3 -std="c++11" -I. $(CPPFLAGS)
+CPPFLAGS	:= -O3 -I. $(CPPFLAGS)
 LIBS		:= -lIceStorm $(LIBS) -lRTAtelem -lpacket -lRTAconfig -lQLBase -lcfitsio -lCTA_CUDA
+
 
 $(PUBLISHER): $(OBJS) $(POBJS)
 	rm -f $@

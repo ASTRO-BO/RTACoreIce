@@ -13,8 +13,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef _MONITOR_THREAD_H
-#define _MONITOR_THREAD_H
+#ifndef _RECEIVER_MONITOR_THREAD_H
+#define _RECEIVER_MONITOR_THREAD_H
 
 #include <IceUtil/Thread.h>
 #include <iostream>
@@ -55,7 +55,15 @@ public:
 					rate.timestamp = now.toMicroSeconds();
 					rate.value = _byteSent / elapsedUs;
 
-					_monitor->sendParameter(rate);
+					try {
+						_monitor->sendParameter(rate);
+					}
+					catch(Ice::ConnectionRefusedException& e)
+					{
+						// something goes wrong with the monitor
+						std::cout << "The monitor has gone.." << std::endl;
+						return;
+					}
 				}
 				else
 				{
