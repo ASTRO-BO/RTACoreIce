@@ -7,6 +7,7 @@
 #
 # **********************************************************************
 
+
 top_srcdir	= .
 
 PUBLISHER	= RTAReceiver_Ice
@@ -28,8 +29,18 @@ SLICE_SRCS	= RTAWave.ice RTAReceiver.ice RTAMonitor.ice RTAViewer.ice
 
 include $(top_srcdir)/config/Make.rules
 
+LINKERENV= root
+ifneq (, $(findstring root, $(LINKERENV)))
+        ROOTCFLAGS   := $(shell root-config --cflags)
+        ROOTLIBS     := $(shell root-config --libs)
+        ROOTGLIBS    := $(shell root-config --glibs)
+        ROOTCONF=-O3 -pipe -Wall -W -fPIC -D_REENTRANT
+        LIBS += $(ROOTGLIBS) -lMinuit
+        CPPFLAGS += $(ROOTCONF)
+endif
+
 CPPFLAGS	:= -O3 -std="c++11" -I. $(CPPFLAGS)
-LIBS		:= -lIceStorm $(LIBS) -lRTAtelem -lpacket -lRTAconfig -lQLBase -lcfitsio
+LIBS		:= -lIceStorm $(LIBS) -lRTAtelem -lpacket -lRTAconfig -lQLBase -lcfitsio -lCTA_CUDA
 
 $(PUBLISHER): $(OBJS) $(POBJS)
 	rm -f $@

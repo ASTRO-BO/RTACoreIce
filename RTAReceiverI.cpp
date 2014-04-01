@@ -148,7 +148,7 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 		}
 	}
 	
-	if(_viewer && _nevent % 5000 == 0) {
+	if(_viewer && _nevent % 3000 == 0) {
 		collectevt = true;
 		lastEvtNum = trtel.getEventNumber();
 		_triggeredEvent.resize(0);
@@ -221,7 +221,7 @@ void RTAReceiverI::send(const std::pair<const unsigned char*, const unsigned cha
 	nsamples = (*pixelTypeStruct).NSamples;
 	//cout << npixels << " " << nsamples  << endl;
 	
-	struct RTAConfig::RTAConfigLoad::Pixel *pixStruct = ctaconf->getPixelStruct((*camTypeStruct).camType, 100);
+	//struct RTAConfig::RTAConfigLoad::Pixel *pixStruct = ctaconf->getPixelStruct((*camTypeStruct).camType, 100);
 	
 	
 	//cout << telTypeSim << endl;
