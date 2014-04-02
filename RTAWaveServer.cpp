@@ -19,6 +19,7 @@
 
 #include <limits>
 #include <RTAWave.h>
+#include <RTAViewCamera.h>
 #include "packet/PacketLibDefinition.h"
 
 #include <TCanvas.h>
@@ -322,7 +323,7 @@ private:
 class RTAWaveI : public RTAWave
 {
 public:
-	RTAWaveI(int serverNum) : _serverNum(serverNum)
+	RTAWaveI(int serverNum, CTA::RTAViewCameraPrx& viewCamera) : _serverNum(serverNum), _viewCamera(viewCamera)
 	{
 		wave = new WaveFormAlgorithm;
 		nevents = 0;
@@ -360,6 +361,23 @@ public:
 			nevents = 0;
 		}
 #endif
+		if(_viewCamera)
+		{
+			try {
+				std::vector<short> tmp;
+				tmp.resize(nPixels);
+				for(unsigned int i=0; i<nPixels; i++)
+					tmp[i]=maxres[i];
+				_viewCamera->update(tmp);
+			}
+			catch(Ice::ConnectionRefusedException& e)
+			{
+				// something goes wrong with the monitor
+				std::cout << "The monitor has gone.." << std::endl;
+				_viewCamera = 0;
+			}
+		}
+
 		delete[] maxres;
 		delete[] timeres;
     }
@@ -376,6 +394,7 @@ private:
 	//display
 	RTAWaveThread* threadDraw;
 	WaveFormAlgorithm* wave;
+    CTA::RTAViewCameraPrx& _viewCamera;
 };
 
 class RTAWaveServer : public Ice::Application
@@ -613,10 +632,19 @@ RTAWaveServer::run(int argc, char* argv[])
 	Ice::PropertiesPtr props = communicator()->getProperties();
 	int serverNum = props->getPropertyAsInt("RTAWave.ServerNumber");
 
+    // get a RTAViewCamera proxy
+    CTA::RTAViewCameraPrx viewcamera = 0;
+    try
+    {
+         viewcamera = CTA::RTAViewCameraPrx::checkedCast(communicator()->propertyToProxy("RTAViewCamera.Proxy"))->ice_oneway();
+    }
+    catch(...)
+    {
+    }
 
 	// Create an adapter for RTAWave
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("RTAWave");
-    RTAWavePtr servant = new RTAWaveI(serverNum);
+    RTAWavePtr servant = new RTAWaveI(serverNum, viewcamera);
     adapter->add(servant, communicator()->stringToIdentity("wave"));
     adapter->activate();
 #endif

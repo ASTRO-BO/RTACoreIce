@@ -15,7 +15,7 @@ SUBSCRIBER	= RTAWaveServer
 
 TARGETS		= $(PUBLISHER) $(SUBSCRIBER)
 
-OBJS		= RTAWave.o RTAReceiver.o RTAMonitor.o RTAViewer.o
+OBJS		= RTAWave.o RTAReceiver.o RTAMonitor.o RTAViewer.o RTAViewCamera.o
 
 POBJS		= RTAReceiverI.o RTAReceiver_Ice.o
 
@@ -25,22 +25,22 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(POBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
-SLICE_SRCS	= RTAWave.ice RTAReceiver.ice RTAMonitor.ice RTAViewer.ice
+SLICE_SRCS	= RTAWave.ice RTAReceiver.ice RTAMonitor.ice RTAViewer.ice RTAViewCamera.ice
 
 include $(top_srcdir)/config/Make.rules
 
 LINKERENV= root
 ifneq (, $(findstring root, $(LINKERENV)))
-        ROOTCFLAGS   := $(shell root-config --cflags)
-        ROOTLIBS     := $(shell root-config --libs)
-        ROOTGLIBS    := $(shell root-config --glibs)
+        ROOTCFLAGS   := `root-config --cflags`
+        ROOTLIBS     := `root-config --libs`
+        ROOTGLIBS    := `root-config --glibs`
         ROOTCONF=-O3 -pipe -Wall -W -fPIC -D_REENTRANT
         LIBS += $(ROOTGLIBS) -lMinuit
-        CPPFLAGS += $(ROOTCONF)
+        CPPFLAGS += $(ROOTCONF) $(ROOTCFLAGS)
 endif
 
 CPPFLAGS	:= -O3 -I. $(CPPFLAGS)
-LIBS		:= -lIceStorm $(LIBS) -lRTAtelem -lpacket -lRTAconfig -lQLBase -lcfitsio -lCTA_CUDA
+LIBS		:= -lIceStorm $(LIBS) -lRTAtelem -lpacket -lRTAconfig -lQLBase -lcfitsio
 
 
 $(PUBLISHER): $(OBJS) $(POBJS)

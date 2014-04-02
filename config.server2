@@ -1,5 +1,7 @@
 RTAWave.Endpoints=default -p 50002 -h localhost
 
+RTAViewCamera.Proxy=viewcamera:default -p 10112 -h localhost
+
 #
 # IceMX configuration.
 #
