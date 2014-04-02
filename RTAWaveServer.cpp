@@ -195,7 +195,7 @@ public:
 		//
 		
 		memcpy(maxresext, maxres, sizeof(unsigned short) * npixels);
-		memcpy(timeresext, timeres, sizeof(unsigned short) * npixels);
+		//memcpy(timeresext, timeres, sizeof(unsigned short) * npixels);
 	};
 	
 	void calcWaveformExtraction3(byte* buffer, int npixels, int nsamples, int ws, dword * maxresext, float * timeresext) {
@@ -258,7 +258,7 @@ public:
 			}
 			
 			maxres[pixel] = maxd; //or sumall
-			timeres[pixel] = maxt; //or maxj
+			timeres[pixel] = maxj; //or maxj
 			
 #ifdef PRINTALG
 			//>9000
@@ -345,11 +345,12 @@ public:
 		/*
 		unsigned short * maxres = new unsigned short[nPixels];
 		unsigned short* timeres = new unsigned short[nPixels];
-		wave->calcWaveformExtraction0((byte*)seqPtr.first, nPixels, nSamples, ws, maxres, timeres);
-		 */
+		wave->calcWaveformExtraction4((byte*)seqPtr.first, nPixels, nSamples, ws, maxres, timeres);
+		*/
 		dword * maxres = new dword[nPixels];
 		float* timeres = new float[nPixels];
 		wave->calcWaveformExtraction3((byte*)seqPtr.first, nPixels, nSamples, ws, maxres, timeres);
+		
 		
 #ifdef SHOWROOTCANVAS
 		 nevents++;
