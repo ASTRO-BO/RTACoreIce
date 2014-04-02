@@ -15,7 +15,7 @@ SUBSCRIBER	= RTAWaveServer
 
 TARGETS		= $(PUBLISHER) $(SUBSCRIBER)
 
-OBJS		= RTAWave.o RTAReceiver.o RTAMonitor.o RTAViewer.o
+OBJS		= RTAWave.o RTAReceiver.o RTAMonitor.o RTAViewer.o RTAViewCamera.o
 
 POBJS		= RTAReceiverI.o RTAReceiver_Ice.o
 
@@ -25,7 +25,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(POBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
-SLICE_SRCS	= RTAWave.ice RTAReceiver.ice RTAMonitor.ice RTAViewer.ice
+SLICE_SRCS	= RTAWave.ice RTAReceiver.ice RTAMonitor.ice RTAViewer.ice RTAViewCamera.ice
 
 include $(top_srcdir)/config/Make.rules
 
