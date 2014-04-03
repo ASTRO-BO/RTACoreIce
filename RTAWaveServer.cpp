@@ -243,7 +243,7 @@ public:
 			
 			for(int j=1; j<nsamples-ws; j++) {
 				
-				sumd = sumd - s[j-1] + s[j+ws-1];
+				sumd = sumd - (s[j-1]) + (s[j+ws-1]);
 				if(sumd > maxd) {
 					maxd = sumd;
 					maxj = j;
@@ -361,6 +361,8 @@ public:
 			nevents = 0;
 		}
 #endif
+		nevents++;
+		if(nevents == 10000)
 		if(_viewCamera)
 		{
 			try {
@@ -376,6 +378,7 @@ public:
 				std::cout << "The monitor has gone.." << std::endl;
 				_viewCamera = 0;
 			}
+			nevents = 0;
 		}
 
 		delete[] maxres;
