@@ -1,0 +1,53 @@
+2014-05-24 Andrea Zoli <zoli@iasfbo.inaf.it>, Andrea Bulgarelli
+<bulgarelli@iasfbo.inaf.it>
+TAG v1.0.0
+* display cameras every X events
+* Merge branch 'master' of github.com:ASTRO-BO/RTACoreIce
+* use calcWaveformExtraction4 alg
+* Added RTAViewCamera interface.
+* Fixed Makefile.
+* Added RTAWaveCamera connection.
+* merged conflicts
+* added root display of waveforms
+* Removed CFLAG -std=c++11.
+* Added *.o to .gitignore.
+* Ignore connection lost with the RTAMonitor.
+* Changed #ifdef for RTAMonitorThread.
+* some changes
+* Merge branch 'master' of github.com:ASTRO-BO/RTACoreIce
+* RTAReceiver APID to 201.
+* Set RTAMonitorThread sleep (refresh) to 1s.
+* working version 2 - 2.5 GB/s
+* Merge branch 'master' of github.com:ASTRO-BO/RTACoreIce
+* changes in RTAWave
+* Remove unused variables.
+* Using 3 RTAWave servers or Ice Storm.
+* Fix #ifdef.
+* Disable -Werror for Linux arch.
+* Merge branch 'master' of github.com:ASTRO-BO/RTACoreIce
+* Fix Semaphore creation and destroy old semaphores.
+* cout removed
+* RTAConfig and telescope type selection
+* open issues on shm section
+* added RTAConfig, calcWaveformExtraction1, execution of _viewer, multiple telescope managements
+* working version 1
+* data flow simulator with rnd
+* Add missing RTAViewer.ice.
+* RTAReceiver sends the triggered telescopes ids to RTAViewer once every 100 events.
+* Sending rate to Monitor OR print to stdout the throuhgput.
+* Add rate monitoring for RTAReceiverI send() calls.
+* - Use ["cpp:array"] interface to avoid copy. - Use route all data to LARGE subscribers.
+* Update README.
+* Fix RTAWaveServer.
+* Using the new RTATelem::CTADecoder interface.
+* Updated README
+* Handling routing of byte stream received from RTAEBSim.
+* Setup RTAReceiver_Ice to receive from RTAEBSimIce1.
+* Fixed licenses.
+* Refactoring for CTA RTA project.
+* Config files for 3.5.0.
+* Fixed compile dependency and objects.
+* Publisher now sends ByteStreams.
+* Defined ByteStream slice interface.
+* Using port 12000.
+* Initial Commit.
