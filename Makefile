@@ -7,6 +7,17 @@
 #
 # **********************************************************************
 
+# Prefix for each installed program. Only ABSOLUTE PATH
+prefix=/usr/local
+exec_prefix=$(prefix)
+# The directory to install the binary files in.
+bindir=$(exec_prefix)/bin
+# The directory to install the libraries in.
+libdir=$(exec_prefix)/lib
+# The directory to install the include files in.
+includedir=$(exec_prefix)/include
+# The directory to install the local configuration file.
+datadir=$(exec_prefix)/share
 
 top_srcdir	= .
 
@@ -53,5 +64,16 @@ $(SUBSCRIBER): $(OBJS) $(SOBJS)
 
 clean::
 	-rm -rf db/*
+
+install:
+	test -d $(bindir) || mkdir -p $(bindir)
+	cp -pf RTAReceiver_Ice $(bindir)
+	cp -pf RTAWaveServer $(bindir)
+	test -d $(datadir)/core/waveserver || mkdir -p $(datadir)/core/waveserver
+	cp -pf config.server* $(datadir)/core/waveserver
+	test -d $(datadir)/core/storm || mkdir -p $(datadir)/core/storm
+	cp -pf config.icebox config.receiver config.sub config.service $(datadir)/core/storm
+	test -d $(datadir)/core/receiver || mkdir -p $(datadir)/core/receiver
+	cp -pf config.receiverNoStorm $(datadir)/core/receiver
 
 include .depend
