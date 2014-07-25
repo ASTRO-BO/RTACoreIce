@@ -1,20 +1,19 @@
 The RTACoreIce component contains a Publisher/Subscriber model for routing RTAEBSimIce buffers based on 3 topics: SMALL, MEDIUM, LARGE (the telescope types).
 
-To build use:
+To build/install use:
 
   $ make
+  $ make install prefix=/install/path
 
-To run you need to start the Ice Storm service (be sure you have a db directory):
+To run without using Ice Storm you need to run:
+
+  $ RTAWaveServer --Ice.Config=config.server1 SmallTelescope
+  $ RTAWaveServer --Ice.Config=config.server2 MediumTelescope
+  $ RTAWaveServer --Ice.Config=config.server3 LargeTelescope
+
+  $ RTAReceiver_Ice --Ice.Config=config.receiver file.stream
+
+To use the Ice Storm service (be sure you have a db directory):
 
   $ mkdir -p db
   $ icebox --Ice.Config=config.icebox
-
-Run the Publisher in a separate window:
-
-  $ RTAReceiver_Ice file.stream
-
-In other windows run the subscribers:
-
-  $ RTAWaveServer SmallTelescope
-  $ RTAWaveServer MediumTelescope
-  $ RTAWaveServer LargeTelescope
