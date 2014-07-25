@@ -40,11 +40,7 @@ public:
 int main(int argc, char* argv[])
 {
     RTAReceiver_Ice app;
-#ifdef USE_ICESTORM
-    return app.main(argc, argv, "config.receiver");
-#else
-	return app.main(argc, argv, "config.receiverNoStorm");
-#endif
+	return app.main(argc, argv);
 }
 
 int RTAReceiver_Ice::run(int argc, char* argv[])

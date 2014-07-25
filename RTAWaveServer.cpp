@@ -411,13 +411,7 @@ int
 main(int argc, char* argv[])
 {
     RTAWaveServer app;
-	
-#ifdef USE_ICESTORM
-    return app.main(argc, argv, "config.sub");
-#else
-    return app.main(argc, argv, "config.server1");
-#endif
-
+    return app.main(argc, argv);
 }
 
 void
