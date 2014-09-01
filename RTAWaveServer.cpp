@@ -42,7 +42,6 @@ class WaveFormAlgorithm {
 public:
 	
 	WaveFormAlgorithm() {
-		flag = 0;
 	};
 
 	bool iszero(double someValue) {
@@ -74,9 +73,6 @@ public:
 		}
 	};
 
-
-
-	int flag;
 	//unsigned short maxres[3000];
 	//double timeres[3000];
 	
@@ -101,20 +97,22 @@ public:
 		
 		//word bl[npixels*nsamples];
 		//memcpy(bl, b, npixels*nsamples*sizeof(word));
-		
+
+#ifdef PRINTALG
+		std::cout << "npixels = " << npixels << std::endl;
+		std::cout << "nsamples = " << nsamples << std::endl;
+#endif
+
 		for(int pixel = 0; pixel<npixels; pixel++) {
 			word* s = b + pixel * nsamples;
-			
+
 #ifdef PRINTALG
-			if(flag == 0) {
-				
-				cout << pixel << " ";
-				for(int k=0; k<nsamples; k++)
-					cout << s[k] << " ";
-				cout << endl;
-			}
+			cout << "pixel " << pixel << " samples ";
+			for(int k=0; k<nsamples; k++)
+				cout << s[k] << " ";
+			cout << endl;
 #endif
-			
+
 			unsigned short max = 0;
 			double maxt = 0;
 			long sumn = 0;
@@ -178,8 +176,7 @@ public:
 			timeres[pixel] =  maxt; //or maxj
 			
 #ifdef PRINTALG
-			//>9000
-			if(flag == 0) cout << pixel << " " << maxt << " " << maxres[pixel] << " " << time[pixel] << " " << endl;
+			cout << "result " << maxt << " " << maxres[pixel] << " " << timeres[pixel] << " " << endl;
 #endif
 			/*
 			 for(int k=0; k<nsamples; k++)
@@ -188,8 +185,6 @@ public:
 			 */
 		}
 		//SharedPtr<double> shtime(maxt);
-		
-		flag++;
 		//return maxres;
 		//maxresext = maxres;
 		//timeresext = timeres;
@@ -206,18 +201,20 @@ public:
 		//double* timeres = new double[2000];
 		dword maxres[npixels];
 		float timeres[npixels];
-		
-		for(int pixel = 0; pixel<npixels; pixel++) {
-			word* s = b + pixel * nsamples;
-			
+
 #ifdef PRINTALG
-			if(flag == 0) {
-				
-				cout << pixel << " ";
-				for(int k=0; k<nsamples; k++)
+		std::cout << "npixels = " << npixels << std::endl;
+		std::cout << "nsamples = " << nsamples << std::endl;
+#endif
+		for(int pixel = 0; pixel<npixels; pixel++) {
+
+			word* s = b + pixel * nsamples;
+
+#ifdef PRINTALG
+			cout << "pixel " << pixel << " samples ";
+			for(int k=0; k<nsamples; k++)
 				cout << s[k] << " ";
-				cout << endl;
-			}
+			cout << endl;
 #endif
 			
 			long maxd = 0;
@@ -262,14 +259,11 @@ public:
 			timeres[pixel] = maxj; //or maxj
 			
 #ifdef PRINTALG
-			//>9000
-			if(flag == 0) cout << pixel << " " << maxt << " " << maxres[pixel] << " " << timeres[pixel] << " " << endl;
+			cout << "result " << maxt << " " << maxres[pixel] << " " << timeres[pixel] << " " << endl;
 #endif
-			
+
 		}
-#ifdef PRINTALG
-		flag++;
-#endif
+
 		memcpy(maxresext, maxres, sizeof(dword) * npixels);
 		memcpy(timeresext, timeres, sizeof(float) * npixels);
 		
