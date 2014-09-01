@@ -13,29 +13,28 @@
  *                                                                         *
  ***************************************************************************/
 
+//#define USE_ICESTORM 1
+//#define SHOWROOTCANVAS 1
+//#define PRINTALG 1
+
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
-#include <IceStorm/IceStorm.h>
-
 #include <limits>
 #include <RTAWave.h>
 #include <RTAViewCamera.h>
 #include "packet/PacketLibDefinition.h"
 
+#ifdef USE_ICESTORM
+#include <IceStorm/IceStorm.h>
+#endif
+
 #include <TCanvas.h>
 #include <TH1D.h>
 #include <TLine.h>
 
-
-
-//#define USE_ICESTORM 1
-//#define SHOWROOTCANVAS 1
-
 using namespace std;
 using namespace CTA;
 using namespace PacketLib;
-
-//#define PRINTALG 1
 
 class WaveFormAlgorithm {
 	
