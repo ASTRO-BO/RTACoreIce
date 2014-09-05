@@ -40,19 +40,20 @@ SLICE_SRCS	= RTAWave.ice RTAReceiver.ice RTAMonitor.ice RTAViewer.ice RTAViewCam
 
 include $(top_srcdir)/config/Make.rules
 
+CPPFLAGS ?= -O2
+LIBS := -lIceStorm $(LIBS) -lRTAtelem -lpacket -lRTAconfig -lQLBase -lcfitsio
+
 LINKERENV= root
 ifneq (, $(findstring root, $(LINKERENV)))
         ROOTCFLAGS   := `root-config --cflags`
         ROOTLIBS     := `root-config --libs`
         ROOTGLIBS    := `root-config --glibs`
-        ROOTCONF=-O3 -pipe -Wall -W -fPIC -D_REENTRANT
+        ROOTCONF=-O2 -pipe -Wall -W -fPIC -D_REENTRANT
         LIBS += $(ROOTGLIBS) -lMinuit
         CPPFLAGS += $(ROOTCONF) $(ROOTCFLAGS)
 endif
 
-CPPFLAGS	:= -O3 -I. $(CPPFLAGS)
-LIBS		:= -lIceStorm $(LIBS) -lRTAtelem -lpacket -lRTAconfig -lQLBase -lcfitsio
-
+CPPFLAGS += -I.
 
 $(PUBLISHER): $(OBJS) $(POBJS)
 	rm -f $@
