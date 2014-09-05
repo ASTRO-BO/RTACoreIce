@@ -48,7 +48,7 @@ ifneq (, $(findstring root, $(LINKERENV)))
         ROOTCFLAGS   := `root-config --cflags`
         ROOTLIBS     := `root-config --libs`
         ROOTGLIBS    := `root-config --glibs`
-        ROOTCONF=-O2 -pipe -Wall -W -fPIC -D_REENTRANT
+        ROOTCONF= -pipe -Wall -W -fPIC -D_REENTRANT
         LIBS += $(ROOTGLIBS) -lMinuit
         CPPFLAGS += $(ROOTCONF) $(ROOTCFLAGS)
 endif
