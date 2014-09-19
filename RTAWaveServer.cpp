@@ -13,6 +13,7 @@
  *                                                                         *
  ***************************************************************************/
 
+//#define COMPRESSION 1
 //#define USE_ICESTORM 1
 //#define SHOWROOTCANVAS 1
 //#define PRINTALG 1
@@ -23,6 +24,7 @@
 #include <RTAWave.h>
 #include <RTAViewCamera.h>
 #include "packet/PacketLibDefinition.h"
+#include "packet/ByteStream.h"
 
 #ifdef USE_ICESTORM
 #include <IceStorm/IceStorm.h>
@@ -327,13 +329,16 @@ public:
 		} else
 #endif
 			threadDraw = 0;
-		
-		
 	}
 
     virtual void send(Ice::Int nPixels, Ice::Int nSamples, const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur)
     {
-		//ByteStreamPtr cameraPtr = ByteStreamPtr(new ByteStream((byte*)seqPtr.first, seqPtr.second-seqPtr.first, false));
+#ifdef COMPRESSION
+		PacketLib::ByteStreamPtr buff = ByteStreamPtr(new ByteStream((byte*)seqPtr.first, seqPtr.second-seqPtr.first, false));
+		buff->compress(LZ4, 9);
+#endif
+
+#ifndef COMPRESSION
         //cout << pixelNum << endl;
 		int ws = 6;
 		/*
@@ -344,8 +349,6 @@ public:
 		dword * maxres = new dword[nPixels];
 		float* timeres = new float[nPixels];
 		wave->calcWaveformExtraction3((byte*)seqPtr.first, nPixels, nSamples, ws, maxres, timeres);
-		
-		
 #ifdef SHOWROOTCANVAS
 		 nevents++;
 		if(nevents == 10000) {
@@ -376,6 +379,7 @@ public:
 
 		delete[] maxres;
 		delete[] timeres;
+#endif // !COMPRESSION
     }
 	virtual void sendGPU(Ice::Int nPixels, Ice::Int nSamples, const std::pair<const unsigned char*, const unsigned char*>& seqPtr, const Ice::Current& cur)
     {
