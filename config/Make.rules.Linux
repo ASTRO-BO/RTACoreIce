@@ -144,7 +144,7 @@ ifeq ($(CXX),icpc)
 
 endif
 
-BASELIBS		= -lIceUtil -lpthread -lrt
+BASELIBS		= -lIceStorm -lIceUtil -lpthread -lrt
 ifneq ($(NPTL_LIB),)
     CXXFLAGS		+= $(NPTL_FLAGS)
     BASELIBS		:= $(NPTL_LIB) $(BASELIBS)

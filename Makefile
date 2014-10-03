@@ -41,7 +41,7 @@ SLICE_SRCS	= RTAWave.ice RTAReceiver.ice RTAMonitor.ice RTAViewer.ice RTAViewCam
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS ?= -O2
-LIBS := -lIceStorm $(LIBS) -lRTAtelem -lpacket -lRTAconfig -lQLBase -lcfitsio
+LIBS := $(LIBS) -lRTAtelem -lpacket -lRTAconfig -lQLBase -lcfitsio
 
 LINKERENV= root
 ifneq (, $(findstring root, $(LINKERENV)))
