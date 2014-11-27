@@ -16,6 +16,8 @@
 #ifndef _RECEIVER_MONITOR_THREAD_H
 #define _RECEIVER_MONITOR_THREAD_H
 
+
+#include <Ice/Ice.h>
 #include <IceUtil/Thread.h>
 #include <iostream>
 #include <RTAMonitor.h>

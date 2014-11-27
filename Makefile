@@ -21,30 +21,39 @@ datadir=$(exec_prefix)/share
 
 top_srcdir	= .
 
+#ENV= root ctatools
+ENV ?= root 
+
 PUBLISHER	= RTAReceiver_Ice
+PUBLISHER2  = RTAReceiverZMQ
 SUBSCRIBER	= RTAWaveServer
 
 TARGETS		= $(PUBLISHER) $(SUBSCRIBER)
+
+ifneq (, $(findstring ctatools, $(ENV)))
+TARGETS += $(PUBLISHER2)
+endif
 
 OBJS		= RTAWave.o RTAReceiver.o RTAMonitor.o RTAViewer.o RTAViewCamera.o
 
 POBJS		= RTAReceiverI.o RTAReceiver_Ice.o
 
+P2OBJS		= RTAReceiverZMQ.o
+
 SOBJS		= RTAWaveServer.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(POBJS:.o=.cpp) \
+		  $(P2OBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
 SLICE_SRCS	= RTAWave.ice RTAReceiver.ice RTAMonitor.ice RTAViewer.ice RTAViewCamera.ice
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS ?= -O2
+CPPFLAGS += -I.
 LIBS := $(LIBS) -lRTAtelem -lpacket -lRTAconfig -lQLBase -lcfitsio
-
-LINKERENV= root
-ifneq (, $(findstring root, $(LINKERENV)))
+ifneq (, $(findstring root, $(ENV)))
         ROOTCFLAGS   := `root-config --cflags`
         ROOTLIBS     := `root-config --libs`
         ROOTGLIBS    := `root-config --glibs`
@@ -52,12 +61,15 @@ ifneq (, $(findstring root, $(LINKERENV)))
         LIBS += $(ROOTGLIBS) -lMinuit
         CPPFLAGS += $(ROOTCONF) $(ROOTCFLAGS)
 endif
-
-CPPFLAGS += -I.
+CPPFLAGS += -std=c++11
 
 $(PUBLISHER): $(OBJS) $(POBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(POBJS) $(LIBS)
+
+$(PUBLISHER2): $(OBJS) $(P2OBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(P2OBJS) $(LIBS) $(P2LIBS) -lCTAToolsCore -lprotobuf -lzmq
 
 $(SUBSCRIBER): $(OBJS) $(SOBJS)
 	rm -f $@
@@ -69,6 +81,7 @@ clean::
 install:
 	test -d $(bindir) || mkdir -p $(bindir)
 	cp -pf RTAReceiver_Ice $(bindir)
+	cp -pf RTAReceiverZMQ $(bindir)
 	cp -pf RTAWaveServer $(bindir)
 	test -d $(datadir)/core/waveserver || mkdir -p $(datadir)/core/waveserver
 	cp -pf config.server* $(datadir)/core/waveserver
