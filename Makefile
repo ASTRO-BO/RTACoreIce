@@ -81,6 +81,7 @@ clean::
 install:
 	test -d $(bindir) || mkdir -p $(bindir)
 	cp -pf RTAReceiver_Ice $(bindir)
+	if [ -z RTAReceiverZMQ ] ; then cp -pf RTAReceiverZMQ $(bindir); fi
 	cp -pf RTAWaveServer $(bindir)
 	test -d $(datadir)/core/waveserver || mkdir -p $(datadir)/core/waveserver
 	cp -pf config.server* $(datadir)/core/waveserver
